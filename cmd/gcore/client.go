@@ -1,0 +1,58 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+	"os"
+	"strings"
+
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+
+	"github.com/G-core/cli/pkg/sdk"
+)
+
+func main() {
+	var rootCmd = &cobra.Command{Use: "gcore"}
+	apiKey := rootCmd.PersistentFlags().StringP("apikey", "a", "", "API key")
+	apiUrl := rootCmd.PersistentFlags().StringP("url", "u", "https://api.gcore.com/fastedge", "API URL")
+	rootCmd.ParseFlags(os.Args[1:])
+
+	v := viper.New()
+	v.SetEnvPrefix("gcore")
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+	bindFlags(rootCmd, v)
+
+	client, err := sdk.NewClientWithResponses(
+		*apiUrl, sdk.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
+			req.Header.Set("Authorization", "APIKey "+*apiKey)
+			return nil
+		}),
+	)
+	if err != nil {
+		fmt.Printf("Cannot init the client: %v\n", err)
+		os.Exit(1)
+	}
+
+	if *apiKey == "" {
+		fmt.Println("API Key must be specified either with -a flag or GCORE_APIKEY env var")
+		os.Exit(1)
+	}
+
+	rootCmd.AddCommand(fastedge(client))
+	rootCmd.Execute()
+}
+
+func bindFlags(cmd *cobra.Command, v *viper.Viper) {
+	fl := cmd.PersistentFlags()
+	fl.VisitAll(func(f *pflag.Flag) {
+		// Apply the viper config value to the flag when the flag is not set and viper has a value
+		if !f.Changed && v.IsSet(f.Name) {
+			val := v.Get(f.Name)
+			cmd.Flags().Set(f.Name, fmt.Sprintf("%v", val))
+		}
+	})
+}

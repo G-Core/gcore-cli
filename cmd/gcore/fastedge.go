@@ -51,7 +51,7 @@ func apps(client *sdk.ClientWithResponses) *cobra.Command {
 				return nil
 			}
 			for _, app := range *rsp.JSON200 {
-				fmt.Printf("ID: %d\n\tStatus: %s\n\tName: %s\n\tUrl: %s\n",
+				fmt.Printf("ID: %d\n\tStatus:\t%s\n\tName:\t%s\n\tUrl:\t%s\n",
 					app.Id,
 					statusToString(app.Status),
 					app.Name,
@@ -74,13 +74,13 @@ func apps(client *sdk.ClientWithResponses) *cobra.Command {
 			}
 			rsp, err := client.GetAppWithResponse(context.Background(), id)
 			if err != nil {
-				return fmt.Errorf("getting the list of apps: %w", err)
+				return fmt.Errorf("getting app detail: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("getting the list of apps: %s", string(rsp.Body))
+				return fmt.Errorf("getting app details: %s", string(rsp.Body))
 			}
 			fmt.Printf(
-				"Name: %s\nBinary: %d\nPlan: %s\nStatus: %s\nUrl: %s\n",
+				"Name:\t%s\nBinary:\t%d\nPlan:\t%s\nStatus:\t%s\nUrl:\t%s\n",
 				*(rsp.JSON200.Name),
 				rsp.JSON200.Binary,
 				rsp.JSON200.Plan,

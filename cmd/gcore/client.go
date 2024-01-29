@@ -16,6 +16,8 @@ import (
 
 func main() {
 	var rootCmd = &cobra.Command{Use: "gcore"}
+
+	// global flags, applicable to all sub-commands
 	apiKey := rootCmd.PersistentFlags().StringP("apikey", "a", "", "API key")
 	apiUrl := rootCmd.PersistentFlags().StringP("url", "u", "https://api.gcore.com/fastedge", "API URL")
 	rootCmd.ParseFlags(os.Args[1:])
@@ -37,18 +39,26 @@ func main() {
 		os.Exit(1)
 	}
 
+	if *apiUrl == "" {
+		fmt.Println("URL must be specified either with -u flag or GCORE_URL env var")
+		os.Exit(1)
+	}
+
 	if *apiKey == "" {
 		fmt.Println("API Key must be specified either with -a flag or GCORE_APIKEY env var")
 		os.Exit(1)
 	}
 
 	rootCmd.AddCommand(fastedge(client))
-	rootCmd.Execute()
+	err = rootCmd.Execute()
+	if err != nil {
+		fmt.Printf("Failed: %v\n", err)
+		os.Exit(1)
+	}
 }
 
 func bindFlags(cmd *cobra.Command, v *viper.Viper) {
-	fl := cmd.PersistentFlags()
-	fl.VisitAll(func(f *pflag.Flag) {
+	cmd.PersistentFlags().VisitAll(func(f *pflag.Flag) {
 		// Apply the viper config value to the flag when the flag is not set and viper has a value
 		if !f.Changed && v.IsSet(f.Name) {
 			val := v.Get(f.Name)

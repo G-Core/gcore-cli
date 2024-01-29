@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/G-core/cli/pkg/sdk"
 	"github.com/spf13/cobra"
@@ -34,7 +35,7 @@ func apps(client *sdk.ClientWithResponses) *cobra.Command {
 
 	var cmdAppsList = &cobra.Command{
 		Use:   "list",
-		Short: "Show list of client's applications",
+		Short: "Show list of client's apps",
 		Long:  ``,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -50,9 +51,9 @@ func apps(client *sdk.ClientWithResponses) *cobra.Command {
 				return nil
 			}
 			for _, app := range *rsp.JSON200 {
-				fmt.Printf("ID: %d\n\tStatus: %d\n\tName: %s\n\tUrl: %s\n",
+				fmt.Printf("ID: %d\n\tStatus: %s\n\tName: %s\n\tUrl: %s\n",
 					app.Id,
-					app.Status,
+					statusToString(app.Status),
 					app.Name,
 					app.Url,
 				)
@@ -61,6 +62,51 @@ func apps(client *sdk.ClientWithResponses) *cobra.Command {
 		},
 	}
 
-	cmdApps.AddCommand(cmdAppsList)
+	var cmdAppsGet = &cobra.Command{
+		Use:   "get <app_id>",
+		Short: "Show app details",
+		Long:  ``,
+		Args:  cobra.MinimumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			id, err := strconv.ParseInt(args[0], 10, 64)
+			if err != nil {
+				return fmt.Errorf("parsing app id: %w", err)
+			}
+			rsp, err := client.GetAppWithResponse(context.Background(), id)
+			if err != nil {
+				return fmt.Errorf("getting the list of apps: %w", err)
+			}
+			if rsp.StatusCode() != http.StatusOK {
+				return fmt.Errorf("getting the list of apps: %s", string(rsp.Body))
+			}
+			fmt.Printf(
+				"Name: %s\nBinary: %d\nPlan: %s\nStatus: %s\nUrl: %s\n",
+				*(rsp.JSON200.Name),
+				rsp.JSON200.Binary,
+				rsp.JSON200.Plan,
+				statusToString(rsp.JSON200.Status),
+				*(rsp.JSON200.Url),
+			)
+			return nil
+		},
+	}
+
+	cmdApps.AddCommand(cmdAppsList, cmdAppsGet)
 	return cmdApps
+}
+
+func statusToString(s int) string {
+	switch s {
+	case 0:
+		return "draft"
+	case 1:
+		return "enabled"
+	case 2:
+		return "disabled"
+	case 3:
+		return "rate limit (hourly limit)"
+	case 4:
+		return "rate limit (daily limit)"
+	}
+	return "unknown"
 }

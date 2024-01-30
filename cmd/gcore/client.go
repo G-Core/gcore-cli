@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -39,14 +40,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	if *apiUrl == "" {
-		fmt.Println("URL must be specified either with -u flag or GCORE_URL env var")
-		os.Exit(1)
-	}
+	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		if *apiUrl == "" {
+			return errors.New("URL must be specified either with -u flag or GCORE_URL env var")
+		}
 
-	if *apiKey == "" {
-		fmt.Println("API Key must be specified either with -a flag or GCORE_APIKEY env var")
-		os.Exit(1)
+		if *apiKey == "" {
+			return errors.New("API Key must be specified either with -a flag or GCORE_APIKEY env var")
+		}
+		return nil
 	}
 
 	rootCmd.AddCommand(fastedge(client))

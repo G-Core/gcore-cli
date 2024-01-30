@@ -66,7 +66,7 @@ func apps(client *sdk.ClientWithResponses) *cobra.Command {
 		Use:   "get <app_id>",
 		Short: "Show app details",
 		Long:  ``,
-		Args:  cobra.MinimumNArgs(1),
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := strconv.ParseInt(args[0], 10, 64)
 			if err != nil {

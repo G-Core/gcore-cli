@@ -34,7 +34,7 @@ func apps(client *sdk.ClientWithResponses) *cobra.Command {
 	}
 
 	var cmdAppsList = &cobra.Command{
-		Use:   "list",
+		Use:   "ls",
 		Short: "Show list of client's apps",
 		Long:  ``,
 		Args:  cobra.NoArgs,
@@ -46,6 +46,13 @@ func apps(client *sdk.ClientWithResponses) *cobra.Command {
 			if rsp.StatusCode() != http.StatusOK {
 				return fmt.Errorf("getting the list of apps: %s", string(rsp.Body))
 			}
+
+			ok, err := cmd.Flags().GetBool("output-raw")
+			if err == nil && ok {
+				fmt.Println(string(rsp.Body))
+				return nil
+			}
+
 			if len(*rsp.JSON200) == 0 {
 				fmt.Printf("you have no apps\n")
 				return nil
@@ -79,6 +86,13 @@ func apps(client *sdk.ClientWithResponses) *cobra.Command {
 			if rsp.StatusCode() != http.StatusOK {
 				return fmt.Errorf("getting app details: %s", string(rsp.Body))
 			}
+
+			ok, err := cmd.Flags().GetBool("output-raw")
+			if err == nil && ok {
+				fmt.Println(string(rsp.Body))
+				return nil
+			}
+
 			fmt.Printf(
 				"Name:\t%s\nBinary:\t%d\nPlan:\t%s\nStatus:\t%s\nUrl:\t%s\n",
 				*(rsp.JSON200.Name),

@@ -21,6 +21,7 @@ func main() {
 	// global flags, applicable to all sub-commands
 	apiKey := rootCmd.PersistentFlags().StringP("apikey", "a", "", "API key")
 	apiUrl := rootCmd.PersistentFlags().StringP("url", "u", "https://api.gcore.com/fastedge", "API URL")
+	rootCmd.PersistentFlags().Bool("output-raw", false, "Output server response 'as is'")
 	rootCmd.ParseFlags(os.Args[1:])
 
 	v := viper.New()

@@ -601,7 +601,7 @@ func NewListAppsRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/v1/apps")
+	operationPath := fmt.Sprintf("/fastedge/v1/apps")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -639,7 +639,7 @@ func NewAddAppRequestWithBody(server string, contentType string, body io.Reader)
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/v1/apps")
+	operationPath := fmt.Sprintf("/fastedge/v1/apps")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -675,7 +675,7 @@ func NewDelAppRequest(server string, id int64) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/v1/apps/%s", pathParam0)
+	operationPath := fmt.Sprintf("/fastedge/v1/apps/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -709,7 +709,7 @@ func NewGetAppRequest(server string, id int64) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/v1/apps/%s", pathParam0)
+	operationPath := fmt.Sprintf("/fastedge/v1/apps/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -754,7 +754,7 @@ func NewUpdateAppRequestWithBody(server string, id int64, contentType string, bo
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/v1/apps/%s", pathParam0)
+	operationPath := fmt.Sprintf("/fastedge/v1/apps/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -783,7 +783,7 @@ func NewListBinariesRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/v1/binaries")
+	operationPath := fmt.Sprintf("/fastedge/v1/binaries")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -810,7 +810,7 @@ func NewCompileJavaScriptRequestWithBody(server string, contentType string, body
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/v1/binaries/javascript")
+	operationPath := fmt.Sprintf("/fastedge/v1/binaries/javascript")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -839,7 +839,7 @@ func NewStoreBinaryRequestWithBody(server string, contentType string, body io.Re
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/v1/binaries/raw")
+	operationPath := fmt.Sprintf("/fastedge/v1/binaries/raw")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -868,7 +868,7 @@ func NewCompileRustRequestWithBody(server string, contentType string, body io.Re
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/v1/binaries/rust")
+	operationPath := fmt.Sprintf("/fastedge/v1/binaries/rust")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -904,7 +904,7 @@ func NewDelBinaryRequest(server string, id int64) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/v1/binaries/%s", pathParam0)
+	operationPath := fmt.Sprintf("/fastedge/v1/binaries/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -938,7 +938,7 @@ func NewGetBinaryRequest(server string, id int64) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/v1/binaries/%s", pathParam0)
+	operationPath := fmt.Sprintf("/fastedge/v1/binaries/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -965,7 +965,7 @@ func NewGetClientMeRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/v1/clients")
+	operationPath := fmt.Sprintf("/fastedge/v1/clients")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -992,7 +992,7 @@ func NewListPlansRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/v1/plans")
+	operationPath := fmt.Sprintf("/fastedge/v1/plans")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1026,7 +1026,7 @@ func NewGetPlanRequest(server string, name string) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/v1/plans/%s", pathParam0)
+	operationPath := fmt.Sprintf("/fastedge/v1/plans/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1060,7 +1060,7 @@ func NewAppCallsRequest(server string, id int, params *AppCallsParams) (*http.Re
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/v1/stats/app_calls/%s", pathParam0)
+	operationPath := fmt.Sprintf("/fastedge/v1/stats/app_calls/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1136,7 +1136,7 @@ func NewAppDurationRequest(server string, id int, params *AppDurationParams) (*h
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/v1/stats/app_duration/%s", pathParam0)
+	operationPath := fmt.Sprintf("/fastedge/v1/stats/app_duration/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1205,7 +1205,7 @@ func NewTotalCallsRequest(server string, params *TotalCallsParams) (*http.Reques
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/v1/stats/total_calls")
+	operationPath := fmt.Sprintf("/fastedge/v1/stats/total_calls")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -2330,51 +2330,51 @@ func ParseTotalCallsResponse(rsp *http.Response) (*TotalCallsResponse, error) {
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"H4sIAAAAAAAC/+xce2/bOBL/KgPtHS4B5NhJml3U/zlJt9tD2w2aFIdDGxi0OLbZSCSXpJz4inz3Ax+W",
+	"LUvyI49e2/NfiSRyOJz5zQxnNPLXKBGZFBy50VH3a6STMWbE/UuktH+kEhKVYehuDhgnamr/o6gTxaRh",
+	"gkfd6NTdhzfnURwNhcqIiboR4+bXF1EcmalEf4kjVNF9HCGfuCUoZZYASS9Kq4QJ2ijGR3Z8ebFXfMKU",
+	"4BlyAxOiGBmkqKM4wjuSyRQthQlRh1E3mpA0x8MottdHs+sjSzEsIQZfMDH2RipG1W29FaMR4yNIxoRz",
+	"TGFvMAWKQ5KnBlpwQ4Y3JIbbMUvGQNJU3GrAO5kKyzakYqThlpkx9C7e7Fv2eJ5F3U+RmxbFERcco+s4",
+	"4nma2i1EXaNyjKu75yTDKm89KcE9qZkhU8KrMy5SwhunKC37YyQUlX6Mau6MIhDogBFAKLV/zBhBoZaC",
+	"ayxryo8tKcvfWqMvbYjJdXWTl+4+JIJi93Pe6RwnA+X+YgdaQBUZGthjnCSGTXC/POIQWoDc6oKWHxzZ",
+	"qUzXPDluv4AWjEWu0mmbEpZOISFpCinLmAG8SxAp0v1aK8hVWq/Wjx/eRnGkkNA/eTptwIXVGf6VM4XU",
+	"oipYZtB9IZ/rGtERKft6LJSp2jej9RxtatjbQ/Xn1+NqvTEaBbF5Qis1N3e/ZbWhUkLVCPFMZJKlxF5B",
+	"GPNkKpDIKeOjquQTt2id6JMFdobEjoE9zxaQCWHOCy6p8nj1NC5M41SrUIU6T411x150hSadR3LKLU86",
+	"gRbkXOdSCmWQgha5ShBSwkc5GWGt/v2dZeld2bvV4UvqD7IP45p1vo3BbhmMd+p/nPpzrnDY14wnNSh4",
+	"Lwzk2lKyz2Hv49XZ/mY+YYUbsJ6pb5/XaO0VHSEQKb37soOYNiyxECsjJxE5N/3BtN+k/zM7AAZTKDDK",
+	"DGZu4N8UDqNu9Et7fnpsh6Nje5nuPHgTpcjUXbO6KHGKI8a5VZYwoNBqwF7oVJhFIFNisOUorBNjGLTM",
+	"UK1EU4a8xrxsqHTzaxx8YnKS+nMfUuB5NkAFYmiFr2uBYok5zFWJvSN321ByAaqfCK7zLJBoYG9OzOJB",
+	"w1Aou5AjDTR3J1VrC0mulD1PUzJdBmll3Q320LwYWbOED8HPsjdLetWaj9sXb6a/vYf9pieYppBUEkut",
+	"ZsqIqMPlIurjBXOqNcKqR6pxWTU+dtFgvIq2UsMfV1cXUA7EG0ineR80Vy5arXXReIdJ7uLabMoqh00m",
+	"NRlqb4KKjHBOgHEbb5LNQn9G7urx/kBySFld4vnO3Ye9k87fQaJKkBuW4v5DV2F1SzD+QHKWod9OqhR/",
+	"O1lk9hHEX3aqxF92noD4tw2jVuweMbGDYqHuQoTFduuMYlaSKGM6I3f92eb9VlxxJeqexGtQediBTINh",
+	"yY1ugnZf5wO7EdQzKwzEO3XE59EE7wwqbgMMmluhbmBGBPY6kCHhunDB+w12kC0Gk7DqUeflb4cnR3Vr",
+	"Z5gJNbXbGkwNbuCFSnJbXLC68aoyLDHGh6KKnd+JNmi9E9Pg/trzXW4QNKoJS7Bc6zIieDD0g204jIvz",
+	"v338Lxz0tMZskE5jEBzOzt+7ofqgHLugWDjE6nRqWWAcklTY0/MADYltMFc4FAqhd/HGDrDnf22sJoBw",
+	"ChmZulKd5cUA4VOw2HVFOJEbkIoJZeewBJcZmF22/fXSpePPuW278IBohFylXRgbI3W33SaSHfT7fSsl",
+	"VH8Ibfr9fnsY9vSZ/wK93IytrSdOY5/5v0UOCeEwZNznIkUWAyQ3Y6HYfzzSMzRjQZ0ozJhp0JjY+134",
+	"1Ksbd723kiUqEt1mJPslkGmX+do/AAs9ZlIMYJjtOYqjCSrtUXJ40DnoWJwLiZxIFnWj44POwaF1AMSM",
+	"na0Vu29PDtvuHNv9Go3QWYR1AG69NzTqRm+ZNj1/0J1VCN3go07Hx3xuwtGcSJkGTttftHcYPutwmfAm",
+	"ycm89FVJS+4rxcw/b+yoF53DqqF85EFNGqkddFJh1uCdacuUsCU2l31ttYRqU1sQibME6ixf51nm6j5O",
+	"WOCTlX/oIj8gI22dgpPitfW1QtcIukdpT8rIOxLU5lTQ6VYSXiPYus30pASKhrDUJYKPUvCGem3W45Op",
+	"6JTQWUzYGCEvjl4+1fJvSyf6Z4afJX78VMQvQxjJeeHvlgDeoxQIcLy14K5gO47uWjZbGiFvBQW0BoJO",
+	"W77uHHkUxlXv0/7K6L1XUooGq8Zxjqk3DkkUydC41yCflpX65tyeD5y/doOtAJzPm9Vwu752Mw/VvnQ/",
+	"F9HaY939db2ZfIeQ/nlQd+5QYXP4OtTdx/WR6zWa7xszz+nZf3YElvDxGo1L2GehrC7m5jUI+ShtmvU9",
+	"gWQX+Xdu8sFu0sO5yU0+KDi79zKhGNCYHpzOBn2LFKH0vu1nyBIGc+nNFFYI9LpRIe0vZEL8iq5sU5tS",
+	"+PfL+E8yIZd+6Cofk+WpYZIo07bOqkWJcXtFnghqt2mXIckNGWF/prsw+yroYEG7IjFoWtooJJkr7ro3",
+	"ddvMuV90n+Wy1DIbhXMtuiyqL9GL9dcOvq+tyJRd+2Nd5vpw8Bgg75KZjfxlMA+Y2wd4Aq421rt8t6VJ",
+	"KnLbbIuXRig8nUFus0hfMoh6/DSC+HuC7P82sz88buzBYBqMEDBgo53ZbGw2DsnzOrI1FJjDcBt7yfX6",
+	"4PXBDnpk2No++MSREVn6ROFqi9gzX3cXpnb2Vg5T1hJmjVIPC1AbVNmKCLUyH15sYdsV2X6uIttKX95c",
+	"avuugfMkpYwgl12xzWwV7n2i21xBeI3mzA15h9Ezai+0EO60Z0IvlXsl77oSfMeca8XzQprr9Swor6pW",
+	"mRK+uix04UY8VU2oelD6QQs/81YCGQQ0E7YXWIOo21+tj7xfZUYX/tOSlQ74PclwVssOn6LU+OHwwUOz",
+	"J16Ww3P6Xcfmzm6N01fNO44m2Lj2RleAdz2XxemvFj49Kc9CZ+ZK/PSkBBelt4/e1Z6pZeIfinY4iYoJ",
+	"aj2VMq5LKIYPv58dHx+/hHAICBz8laMLRIGFoRLZZkeIlQ12axlDTn3z0h4XBhhP0pwiBcaNWGjq84P3",
+	"N+TdiGflfKQIz1OimJnGwDhoTASnuoEZbVCuZKfom/u18wznsM0+ZZh/Z/FjxoOz2TcgPgJriQkbsmTp",
+	"9c2l2+Eq+561Gq418fN5T+LOyndW/kNY+VK7/o9p6a/qPyV4hN0bYUjqI3ujxV/ZMRuF9Z1N7mzy/zjy",
+	"2iuf+y437RZGaKe7Zm1vPu6j8mijBvPI6iTQq/vNBw1EIWg02iZmISPfC98ckEzk3MQO8iI3+zE49fn+",
+	"/aKt/2AOH58NVOE4q9C4xRYa/8M3Au5HOsCMiXEDiPuEr3iKFG7H6PpKgGlQhC+sWNR+qov2pPQLLtx2",
+	"u1z4IMGtqXCICnmCLjENRW4Smu9d3lN8QCC4Icyx0iocp0ZjLU3HoPNkDEQD1v0IyQLTriemyvBl8X3X",
+	"IpeQu5/FCFMvA+4rH+Q6ALVSnGBacLRQZZlTmFVV7q/v/xsAAP//D7ktpeJFAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

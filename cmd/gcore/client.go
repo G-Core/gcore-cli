@@ -20,8 +20,8 @@ func main() {
 
 	// global flags, applicable to all sub-commands
 	apiKey := rootCmd.PersistentFlags().StringP("apikey", "a", "", "API key")
-	apiUrl := rootCmd.PersistentFlags().StringP("url", "u", "https://api.gcore.com/fastedge", "API URL")
-	rootCmd.PersistentFlags().Bool("output-raw", false, "Output server response 'as is'")
+	apiUrl := rootCmd.PersistentFlags().StringP("url", "u", "https://api.gcore.com", "API URL")
+	formatOption(rootCmd)
 	rootCmd.ParseFlags(os.Args[1:])
 
 	v := viper.New()
@@ -31,7 +31,8 @@ func main() {
 	bindFlags(rootCmd, v)
 
 	client, err := sdk.NewClientWithResponses(
-		*apiUrl, sdk.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
+		*apiUrl,
+		sdk.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
 			req.Header.Set("Authorization", "APIKey "+*apiKey)
 			return nil
 		}),
@@ -45,7 +46,6 @@ func main() {
 		if *apiUrl == "" {
 			return errors.New("URL must be specified either with -u flag or GCORE_URL env var")
 		}
-
 		if *apiKey == "" {
 			return errors.New("API Key must be specified either with -a flag or GCORE_APIKEY env var")
 		}

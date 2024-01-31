@@ -29,7 +29,7 @@ tags:
     description: Client-level settings and limits
 
 paths:
-  /v1/stats/total_calls:
+  /fastedge/v1/stats/total_calls:
     get:
       tags:
       - Stats
@@ -74,7 +74,7 @@ paths:
             text/plain:
               schema:
                 type: string
-  /v1/stats/app_calls/{id}:
+  /fastedge/v1/stats/app_calls/{id}:
     get:
       tags:
       - Stats
@@ -126,7 +126,7 @@ paths:
               schema:
                 type: string
 
-  /v1/stats/app_duration/{id}:
+  /fastedge/v1/stats/app_duration/{id}:
     get:
       tags:
       - Stats
@@ -179,7 +179,7 @@ paths:
                 type: string
 
 
-  /v1/plans:
+  /fastedge/v1/plans:
     get:
       tags:
       - Plans
@@ -202,7 +202,7 @@ paths:
             text/plain:
               schema:
                 type: string
-  /v1/plans/{name}:
+  /fastedge/v1/plans/{name}:
     get:
       tags:
       - Plans
@@ -237,7 +237,7 @@ paths:
               schema:
                 type: string
 
-  /v1/binaries:
+  /fastedge/v1/binaries:
     get:
       tags:
       - Binaries
@@ -261,7 +261,7 @@ paths:
               schema:
                 type: string
 
-  /v1/binaries/raw:
+  /fastedge/v1/binaries/raw:
     post:
       tags:
       - Binaries
@@ -311,7 +311,7 @@ paths:
               schema:
                 type: string
 
-  /v1/binaries/rust:
+  /fastedge/v1/binaries/rust:
     post:
       tags:
       - Binaries
@@ -364,7 +364,7 @@ paths:
               schema:
                 type: string
 
-  /v1/binaries/javascript:
+  /fastedge/v1/binaries/javascript:
     post:
       tags:
       - Binaries
@@ -417,7 +417,7 @@ paths:
               schema:
                 type: string
 
-  /v1/binaries/{id}:
+  /fastedge/v1/binaries/{id}:
     get:
       tags:
       - Binaries
@@ -489,7 +489,7 @@ paths:
               schema:
                 type: string
 
-  /v1/apps:
+  /fastedge/v1/apps:
     get:
       tags:
       - Apps
@@ -558,7 +558,7 @@ paths:
               schema:
                 type: string
       x-codegen-request-body-name: app
-  /v1/apps/{id}:
+  /fastedge/v1/apps/{id}:
     get:
       tags:
       - Apps
@@ -679,7 +679,7 @@ paths:
               schema:
                 type: string
 
-  /v1/clients:
+  /fastedge/v1/clients:
     get:
       tags:
       - Clients

@@ -29,7 +29,7 @@ tags:
     description: Client-level settings and limits
 
 paths:
-  /fastedge/v1/stats/total_calls:
+  /v1/stats/total_calls:
     get:
       tags:
       - Stats
@@ -74,7 +74,7 @@ paths:
             text/plain:
               schema:
                 type: string
-  /fastedge/v1/stats/app_calls/{id}:
+  /v1/stats/app_calls/{id}:
     get:
       tags:
       - Stats
@@ -126,7 +126,7 @@ paths:
               schema:
                 type: string
 
-  /fastedge/v1/stats/app_duration/{id}:
+  /v1/stats/app_duration/{id}:
     get:
       tags:
       - Stats
@@ -178,8 +178,7 @@ paths:
               schema:
                 type: string
 
-
-  /fastedge/v1/plans:
+  /v1/plans:
     get:
       tags:
       - Plans
@@ -202,7 +201,7 @@ paths:
             text/plain:
               schema:
                 type: string
-  /fastedge/v1/plans/{name}:
+  /v1/plans/{name}:
     get:
       tags:
       - Plans
@@ -237,7 +236,7 @@ paths:
               schema:
                 type: string
 
-  /fastedge/v1/binaries:
+  /v1/binaries:
     get:
       tags:
       - Binaries
@@ -261,7 +260,7 @@ paths:
               schema:
                 type: string
 
-  /fastedge/v1/binaries/raw:
+  /v1/binaries/raw:
     post:
       tags:
       - Binaries
@@ -311,7 +310,7 @@ paths:
               schema:
                 type: string
 
-  /fastedge/v1/binaries/rust:
+  /v1/binaries/rust:
     post:
       tags:
       - Binaries
@@ -364,7 +363,7 @@ paths:
               schema:
                 type: string
 
-  /fastedge/v1/binaries/javascript:
+  /v1/binaries/javascript:
     post:
       tags:
       - Binaries
@@ -417,7 +416,7 @@ paths:
               schema:
                 type: string
 
-  /fastedge/v1/binaries/{id}:
+  /v1/binaries/{id}:
     get:
       tags:
       - Binaries
@@ -489,7 +488,7 @@ paths:
               schema:
                 type: string
 
-  /fastedge/v1/apps:
+  /v1/apps:
     get:
       tags:
       - Apps
@@ -558,7 +557,7 @@ paths:
               schema:
                 type: string
       x-codegen-request-body-name: app
-  /fastedge/v1/apps/{id}:
+  /v1/apps/{id}:
     get:
       tags:
       - Apps
@@ -598,6 +597,60 @@ paths:
       - Apps
       summary: Update an app
       operationId: updateApp
+      parameters:
+      - name: id
+        in: path
+        description: ID of the app
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        description: App details
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/app'
+                - type: object
+                  required:
+                  - binary
+                  - plan
+                  - status
+        required: false
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/app_short'
+        400:
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+        401:
+          description: Unauthorised
+        500:
+          description: Error occurred
+          content:
+            text/plain:
+              schema:
+                type: string
+        503:
+          description: Service unavailable
+          content:
+            text/plain:
+              schema:
+                type: string
+      x-codegen-request-body-name: app
+    patch:
+      tags:
+      - Apps
+      summary: Update an app
+      operationId: patchApp
       parameters:
       - name: id
         in: path
@@ -679,7 +732,7 @@ paths:
               schema:
                 type: string
 
-  /fastedge/v1/clients:
+  /v1/clients:
     get:
       tags:
       - Clients
@@ -718,7 +771,7 @@ components:
       properties:
         max_duration:
           type: integer
-          description: Max duration in 10 ms ticks
+          description: Max duration in msec
           default: 5
         mem_limit:
           type: integer
@@ -750,10 +803,6 @@ components:
           type: integer
           description: 'Status code:<br>0 - draft (inactive)<br>1 - enabled<br>2 - disabled<br>3/4 - hourly/daily call limit exceeded)'
     app:
-      required:
-      - binary
-      - plan
-      - status
       type: object
       properties:
         name:

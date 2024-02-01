@@ -24,14 +24,20 @@ import (
 
 // Defines values for AppLog.
 const (
-	Kafka AppLog = "kafka"
-	None  AppLog = "none"
+	AppLogKafka AppLog = "kafka"
+	AppLogNone  AppLog = "none"
+)
+
+// Defines values for UpdateAppJSONBodyLog.
+const (
+	UpdateAppJSONBodyLogKafka UpdateAppJSONBodyLog = "kafka"
+	UpdateAppJSONBodyLogNone  UpdateAppJSONBodyLog = "none"
 )
 
 // App defines model for app.
 type App struct {
 	// Binary Binary ID
-	Binary int64 `json:"binary"`
+	Binary *int64 `json:"binary,omitempty"`
 
 	// Env Environment variables
 	Env *map[string]string `json:"env,omitempty"`
@@ -43,13 +49,13 @@ type App struct {
 	Name *string `json:"name,omitempty"`
 
 	// Plan Plan name
-	Plan string `json:"plan"`
+	Plan *string `json:"plan,omitempty"`
 
 	// RspHeaders Extra headers to add to the response
 	RspHeaders *map[string]string `json:"rsp_headers,omitempty"`
 
 	// Status Status code:<br>0 - draft (inactive)<br>1 - enabled<br>2 - disabled<br>3/4 - hourly/daily call limit exceeded)
-	Status int `json:"status"`
+	Status *int `json:"status,omitempty"`
 
 	// Url App URL
 	Url *string `json:"url,omitempty"`
@@ -165,7 +171,7 @@ type DurationStats struct {
 
 // Plan defines model for plan.
 type Plan struct {
-	// MaxDuration Max duration in 10 ms ticks
+	// MaxDuration Max duration in msec
 	MaxDuration int `json:"max_duration"`
 
 	// MaxSubrequests Max number of external network requests (0 means disabled)
@@ -174,6 +180,36 @@ type Plan struct {
 	// MemLimit Max memory in bytes
 	MemLimit int `json:"mem_limit"`
 }
+
+// UpdateAppJSONBody defines parameters for UpdateApp.
+type UpdateAppJSONBody struct {
+	// Binary Binary ID
+	Binary int64 `json:"binary"`
+
+	// Env Environment variables
+	Env *map[string]string `json:"env,omitempty"`
+
+	// Log Logging channel (by default - kafka, which allows exploring logs with API)
+	Log *UpdateAppJSONBodyLog `json:"log"`
+
+	// Name App name
+	Name *string `json:"name,omitempty"`
+
+	// Plan Plan name
+	Plan string `json:"plan"`
+
+	// RspHeaders Extra headers to add to the response
+	RspHeaders *map[string]string `json:"rsp_headers,omitempty"`
+
+	// Status Status code:<br>0 - draft (inactive)<br>1 - enabled<br>2 - disabled<br>3/4 - hourly/daily call limit exceeded)
+	Status int `json:"status"`
+
+	// Url App URL
+	Url *string `json:"url,omitempty"`
+}
+
+// UpdateAppJSONBodyLog defines parameters for UpdateApp.
+type UpdateAppJSONBodyLog string
 
 // CompileJavaScriptMultipartBody defines parameters for CompileJavaScript.
 type CompileJavaScriptMultipartBody struct {
@@ -226,8 +262,11 @@ type TotalCallsParams struct {
 // AddAppJSONRequestBody defines body for AddApp for application/json ContentType.
 type AddAppJSONRequestBody = App
 
+// PatchAppJSONRequestBody defines body for PatchApp for application/json ContentType.
+type PatchAppJSONRequestBody = App
+
 // UpdateAppJSONRequestBody defines body for UpdateApp for application/json ContentType.
-type UpdateAppJSONRequestBody = App
+type UpdateAppJSONRequestBody UpdateAppJSONBody
 
 // CompileJavaScriptMultipartRequestBody defines body for CompileJavaScript for multipart/form-data ContentType.
 type CompileJavaScriptMultipartRequestBody CompileJavaScriptMultipartBody
@@ -322,6 +361,11 @@ type ClientInterface interface {
 	// GetApp request
 	GetApp(ctx context.Context, id int64, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// PatchAppWithBody request with any body
+	PatchAppWithBody(ctx context.Context, id int64, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PatchApp(ctx context.Context, id int64, body PatchAppJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// UpdateAppWithBody request with any body
 	UpdateAppWithBody(ctx context.Context, id int64, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -414,6 +458,30 @@ func (c *ClientSDK) DelApp(ctx context.Context, id int64, reqEditors ...RequestE
 
 func (c *ClientSDK) GetApp(ctx context.Context, id int64, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetAppRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *ClientSDK) PatchAppWithBody(ctx context.Context, id int64, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchAppRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *ClientSDK) PatchApp(ctx context.Context, id int64, body PatchAppJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchAppRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -601,7 +669,7 @@ func NewListAppsRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/fastedge/v1/apps")
+	operationPath := fmt.Sprintf("/v1/apps")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -639,7 +707,7 @@ func NewAddAppRequestWithBody(server string, contentType string, body io.Reader)
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/fastedge/v1/apps")
+	operationPath := fmt.Sprintf("/v1/apps")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -675,7 +743,7 @@ func NewDelAppRequest(server string, id int64) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/fastedge/v1/apps/%s", pathParam0)
+	operationPath := fmt.Sprintf("/v1/apps/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -709,7 +777,7 @@ func NewGetAppRequest(server string, id int64) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/fastedge/v1/apps/%s", pathParam0)
+	operationPath := fmt.Sprintf("/v1/apps/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -723,6 +791,53 @@ func NewGetAppRequest(server string, id int64) (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewPatchAppRequest calls the generic PatchApp builder with application/json body
+func NewPatchAppRequest(server string, id int64, body PatchAppJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPatchAppRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewPatchAppRequestWithBody generates requests for PatchApp with any type of body
+func NewPatchAppRequestWithBody(server string, id int64, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/apps/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -754,7 +869,7 @@ func NewUpdateAppRequestWithBody(server string, id int64, contentType string, bo
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/fastedge/v1/apps/%s", pathParam0)
+	operationPath := fmt.Sprintf("/v1/apps/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -783,7 +898,7 @@ func NewListBinariesRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/fastedge/v1/binaries")
+	operationPath := fmt.Sprintf("/v1/binaries")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -810,7 +925,7 @@ func NewCompileJavaScriptRequestWithBody(server string, contentType string, body
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/fastedge/v1/binaries/javascript")
+	operationPath := fmt.Sprintf("/v1/binaries/javascript")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -839,7 +954,7 @@ func NewStoreBinaryRequestWithBody(server string, contentType string, body io.Re
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/fastedge/v1/binaries/raw")
+	operationPath := fmt.Sprintf("/v1/binaries/raw")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -868,7 +983,7 @@ func NewCompileRustRequestWithBody(server string, contentType string, body io.Re
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/fastedge/v1/binaries/rust")
+	operationPath := fmt.Sprintf("/v1/binaries/rust")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -904,7 +1019,7 @@ func NewDelBinaryRequest(server string, id int64) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/fastedge/v1/binaries/%s", pathParam0)
+	operationPath := fmt.Sprintf("/v1/binaries/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -938,7 +1053,7 @@ func NewGetBinaryRequest(server string, id int64) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/fastedge/v1/binaries/%s", pathParam0)
+	operationPath := fmt.Sprintf("/v1/binaries/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -965,7 +1080,7 @@ func NewGetClientMeRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/fastedge/v1/clients")
+	operationPath := fmt.Sprintf("/v1/clients")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -992,7 +1107,7 @@ func NewListPlansRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/fastedge/v1/plans")
+	operationPath := fmt.Sprintf("/v1/plans")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1026,7 +1141,7 @@ func NewGetPlanRequest(server string, name string) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/fastedge/v1/plans/%s", pathParam0)
+	operationPath := fmt.Sprintf("/v1/plans/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1060,7 +1175,7 @@ func NewAppCallsRequest(server string, id int, params *AppCallsParams) (*http.Re
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/fastedge/v1/stats/app_calls/%s", pathParam0)
+	operationPath := fmt.Sprintf("/v1/stats/app_calls/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1136,7 +1251,7 @@ func NewAppDurationRequest(server string, id int, params *AppDurationParams) (*h
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/fastedge/v1/stats/app_duration/%s", pathParam0)
+	operationPath := fmt.Sprintf("/v1/stats/app_duration/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1205,7 +1320,7 @@ func NewTotalCallsRequest(server string, params *TotalCallsParams) (*http.Reques
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/fastedge/v1/stats/total_calls")
+	operationPath := fmt.Sprintf("/v1/stats/total_calls")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1321,6 +1436,11 @@ type ClientWithResponsesInterface interface {
 
 	// GetAppWithResponse request
 	GetAppWithResponse(ctx context.Context, id int64, reqEditors ...RequestEditorFn) (*GetAppResponse, error)
+
+	// PatchAppWithBodyWithResponse request with any body
+	PatchAppWithBodyWithResponse(ctx context.Context, id int64, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchAppResponse, error)
+
+	PatchAppWithResponse(ctx context.Context, id int64, body PatchAppJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchAppResponse, error)
 
 	// UpdateAppWithBodyWithResponse request with any body
 	UpdateAppWithBodyWithResponse(ctx context.Context, id int64, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateAppResponse, error)
@@ -1445,6 +1565,28 @@ func (r GetAppResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetAppResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PatchAppResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AppShort
+}
+
+// Status returns HTTPResponse.Status
+func (r PatchAppResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PatchAppResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -1780,6 +1922,23 @@ func (c *ClientWithResponses) GetAppWithResponse(ctx context.Context, id int64, 
 	return ParseGetAppResponse(rsp)
 }
 
+// PatchAppWithBodyWithResponse request with arbitrary body returning *PatchAppResponse
+func (c *ClientWithResponses) PatchAppWithBodyWithResponse(ctx context.Context, id int64, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchAppResponse, error) {
+	rsp, err := c.PatchAppWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchAppResponse(rsp)
+}
+
+func (c *ClientWithResponses) PatchAppWithResponse(ctx context.Context, id int64, body PatchAppJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchAppResponse, error) {
+	rsp, err := c.PatchApp(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchAppResponse(rsp)
+}
+
 // UpdateAppWithBodyWithResponse request with arbitrary body returning *UpdateAppResponse
 func (c *ClientWithResponses) UpdateAppWithBodyWithResponse(ctx context.Context, id int64, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateAppResponse, error) {
 	rsp, err := c.UpdateAppWithBody(ctx, id, contentType, body, reqEditors...)
@@ -1989,6 +2148,32 @@ func ParseGetAppResponse(rsp *http.Response) (*GetAppResponse, error) {
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest App
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePatchAppResponse parses an HTTP response from a PatchAppWithResponse call
+func ParsePatchAppResponse(rsp *http.Response) (*PatchAppResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PatchAppResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AppShort
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -2330,51 +2515,52 @@ func ParseTotalCallsResponse(rsp *http.Response) (*TotalCallsResponse, error) {
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"438DAAD//y3xHyGuSAAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

@@ -12,7 +12,8 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
-	"github.com/G-core/cli/pkg/sdk"
+	"github.com/G-core/cli/fastedge"
+	"github.com/G-core/cli/pkg/output"
 )
 
 func main() {
@@ -21,7 +22,7 @@ func main() {
 	// global flags, applicable to all sub-commands
 	apiKey := rootCmd.PersistentFlags().StringP("apikey", "a", "", "API key")
 	apiUrl := rootCmd.PersistentFlags().StringP("url", "u", "https://api.gcore.com", "API URL")
-	formatOption(rootCmd)
+	output.FormatOption(rootCmd)
 	rootCmd.ParseFlags(os.Args[1:])
 
 	v := viper.New()
@@ -30,16 +31,9 @@ func main() {
 	v.AutomaticEnv()
 	bindFlags(rootCmd, v)
 
-	client, err := sdk.NewClientWithResponses(
-		*apiUrl,
-		sdk.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
-			req.Header.Set("Authorization", "APIKey "+*apiKey)
-			return nil
-		}),
-	)
-	if err != nil {
-		fmt.Printf("Cannot init the client: %v\n", err)
-		os.Exit(1)
+	authFunc := func(ctx context.Context, req *http.Request) error {
+		req.Header.Set("Authorization", "APIKey "+*apiKey)
+		return nil
 	}
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
@@ -52,10 +46,16 @@ func main() {
 		return nil
 	}
 
-	rootCmd.AddCommand(fastedge(client))
+	fastedgeCmd, err := fastedge.Commands(*apiUrl, authFunc)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed: %v\n", err)
+		os.Exit(1)
+	}
+
+	rootCmd.AddCommand(fastedgeCmd)
 	err = rootCmd.Execute()
 	if err != nil {
-		fmt.Printf("Failed: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Failed: %v\n", err)
 		os.Exit(1)
 	}
 }

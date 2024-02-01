@@ -22,33 +22,33 @@ const (
 	wasmContentType = "application/octet-stream"
 )
 
+var client *sdk.ClientWithResponses
+
 // top-level FastEdge command
 func Commands(baseUrl string, authFunc func(ctx context.Context, req *http.Request) error) (*cobra.Command, error) {
-	client, err := sdk.NewClientWithResponses(
-		baseUrl+"/fastedge",
-		sdk.WithRequestEditorFn(authFunc),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("cannot init SDK: %w", err)
-	}
-
 	var cmdFastedge = &cobra.Command{
 		Use:   "fastedge <subcommand>",
 		Short: "Gcore Edge compute solution",
 		Long:  ``,
 		Args:  cobra.MinimumNArgs(1),
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			var err error
+			client, err = sdk.NewClientWithResponses(
+				baseUrl+"/fastedge",
+				sdk.WithRequestEditorFn(authFunc),
+			)
+			if err != nil {
+				return fmt.Errorf("cannot init SDK: %w", err)
+			}
+			return nil
+		},
 	}
 
-	cmdFastedge.AddCommand(
-		app(client),
-		binary(client),
-		plan(client),
-	)
-
+	cmdFastedge.AddCommand(app(), binary(), plan())
 	return cmdFastedge, nil
 }
 
-func binary(client *sdk.ClientWithResponses) *cobra.Command {
+func binary() *cobra.Command {
 	var cmdBin = &cobra.Command{
 		Use:   "binary <subcommand>",
 		Short: "Binary-related commands",
@@ -141,7 +141,7 @@ func binary(client *sdk.ClientWithResponses) *cobra.Command {
 }
 
 // app-related commands
-func app(client *sdk.ClientWithResponses) *cobra.Command {
+func app() *cobra.Command {
 	var cmdApp = &cobra.Command{
 		Use:   "app <subcommand>",
 		Short: "App-related commands",
@@ -422,7 +422,7 @@ func getMapParamP(cmd *cobra.Command, name string) (map[string]string, error) {
 	return ret, nil
 }
 
-func plan(client *sdk.ClientWithResponses) *cobra.Command {
+func plan() *cobra.Command {
 	var cmdPlan = &cobra.Command{
 		Use:   "plan <subcommand>",
 		Short: "Plan-related commands",

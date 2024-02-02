@@ -19,15 +19,15 @@ func app() *cobra.Command {
 	var cmdApp = &cobra.Command{
 		Use:   "app <subcommand>",
 		Short: "App-related commands",
-		Long:  ``,
+		Long:  ``, // TODO:
 		Args:  cobra.MinimumNArgs(1),
 	}
 
 	var cmdCreate = &cobra.Command{
 		Use:     "create",
-		Aliases: []string{"add"},
+		Aliases: []string{"add", "deploy"},
 		Short:   "Add new app",
-		Long:    ``,
+		Long:    ``, // TODO:
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			app, err := parseAppProperties(cmd)
@@ -77,11 +77,68 @@ func app() *cobra.Command {
 	}
 	appPropertiesFlags(cmdCreate)
 
+	var cmdUpdate = &cobra.Command{
+		Use:   "update <app_id>",
+		Short: "Update the app",
+		Long: `This command allows to change only specified properties of the app,
+		omitted properties are left intact. When changing key-value properties, such
+		as 'env' and 'rsp_headers', new keys are added to the list, existing keys are
+		updated, keys with empty values are deleted`,
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			id, err := strconv.ParseInt(args[0], 10, 64)
+			if err != nil {
+				return fmt.Errorf("parsing app id: %w", err)
+			}
+
+			app, err := parseAppProperties(cmd)
+			if err != nil {
+				return err
+			}
+			if app.Binary == nil {
+				file, err := cmd.Flags().GetString("file")
+				if err != nil {
+					return fmt.Errorf("cannot parse file name: %w", err)
+				}
+				if file != "" {
+					id, err := uploadBinary(file)
+					if err != nil {
+						return err
+					}
+					app.Binary = &id
+				}
+			}
+
+			rsp, err := client.PatchAppWithResponse(context.Background(), id, app)
+			if err != nil {
+				return fmt.Errorf("updating the app: %w", err)
+			}
+			if rsp.StatusCode() != http.StatusOK {
+				return fmt.Errorf("updating the app: %s", string(rsp.Body))
+			}
+
+			if output.Format(cmd) == output.FmtJSON {
+				fmt.Println(string(rsp.Body))
+				return nil
+			}
+
+			fmt.Printf(
+				"ID:\t%d\nName:\t%s\nStatus:\t%s\nUrl:\t%s\n",
+				rsp.JSON200.Id,
+				rsp.JSON200.Name,
+				appStatusToString(rsp.JSON200.Status),
+				rsp.JSON200.Url,
+			)
+			return nil
+		},
+	}
+	appPropertiesFlags(cmdUpdate)
+
 	var cmdList = &cobra.Command{
 		Use:     "list",
 		Aliases: []string{"ls"},
 		Short:   "Show list of client's apps",
-		Long:    ``,
+		Long:    ``, // TODO:
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			rsp, err := client.ListAppsWithResponse(context.Background())
@@ -121,7 +178,7 @@ func app() *cobra.Command {
 		Use:     "show <app_id>",
 		Aliases: []string{"get"},
 		Short:   "Show app details",
-		Long:    ``,
+		Long:    ``, // TODO:
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := strconv.ParseInt(args[0], 10, 64)
@@ -161,18 +218,17 @@ func app() *cobra.Command {
 	var cmdEnable = &cobra.Command{
 		Use:   "enable <app_id>",
 		Short: "Enable the app",
-		Long:  ``,
+		Long:  ``, // TODO:
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := strconv.ParseInt(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("parsing app id: %w", err)
 			}
-			status := 1
 			rsp, err := client.PatchAppWithResponse(
 				context.Background(),
 				id,
-				sdk.App{Status: &status},
+				sdk.App{Status: newPointer(1)},
 			)
 			if err != nil {
 				return fmt.Errorf("enabling app: %w", err)
@@ -194,18 +250,17 @@ func app() *cobra.Command {
 	var cmdDisable = &cobra.Command{
 		Use:   "disable <app_id>",
 		Short: "Disable the app",
-		Long:  ``,
+		Long:  ``, // TODO:
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := strconv.ParseInt(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("parsing app id: %w", err)
 			}
-			status := 2
 			rsp, err := client.PatchAppWithResponse(
 				context.Background(),
 				id,
-				sdk.App{Status: &status},
+				sdk.App{Status: newPointer(2)},
 			)
 			if err != nil {
 				return fmt.Errorf("disabling app: %w", err)
@@ -224,12 +279,43 @@ func app() *cobra.Command {
 		},
 	}
 
+	var cmdDelete = &cobra.Command{
+		Use:     "delete <app_id>",
+		Short:   "Delete the app",
+		Aliases: []string{"rm"},
+		Long:    ``, // TODO:
+		Args:    cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			id, err := strconv.ParseInt(args[0], 10, 64)
+			if err != nil {
+				return fmt.Errorf("parsing app id: %w", err)
+			}
+			rsp, err := client.DelAppWithResponse(context.Background(), id)
+			if err != nil {
+				return fmt.Errorf("deleting app: %w", err)
+			}
+			if rsp.StatusCode() != http.StatusOK {
+				return fmt.Errorf("deleting app: %s", string(rsp.Body))
+			}
+
+			if output.Format(cmd) == output.FmtJSON {
+				fmt.Println(string(rsp.Body))
+				return nil
+			}
+
+			fmt.Printf("App %d deleted\n", id)
+			return nil
+		},
+	}
+
 	cmdApp.AddCommand(
 		cmdList,
 		cmdGet,
 		cmdEnable,
 		cmdDisable,
 		cmdCreate,
+		cmdUpdate,
+		cmdDelete,
 	)
 	return cmdApp
 }
@@ -237,7 +323,7 @@ func app() *cobra.Command {
 func appPropertiesFlags(cmd *cobra.Command) {
 	cmd.Flags().String("name", "", "App name")
 	cmd.Flags().Int64("binary", -1, "Wasm binary id")
-	cmd.Flags().StringP("file", "f", sourceStdin, "Wasm binary filename ('-' means stdin)")
+	cmd.Flags().StringP("file", "f", "", "Wasm binary filename ('-' means stdin)")
 	cmd.Flags().String("plan", "", "Plan name")
 	cmd.Flags().Bool("disabled", false, "Set status to 'disabled'")
 	cmd.Flags().StringSlice("env", nil, "Environment, in name=value format")
@@ -271,15 +357,15 @@ func parseAppProperties(cmd *cobra.Command) (sdk.App, error) {
 		app.Binary = &binID
 	}
 
-	status := 1
 	disabled, err := cmd.Flags().GetBool("disabled")
 	if err != nil {
 		return app, err
 	}
 	if disabled {
-		status = 2
+		app.Status = newPointer(2)
+	} else {
+		app.Status = newPointer(1)
 	}
-	app.Status = &status
 
 	env, err := getMapParamP(cmd, "env")
 	if err != nil {

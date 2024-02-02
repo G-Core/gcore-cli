@@ -16,7 +16,7 @@ func plan() *cobra.Command {
 	var cmdPlan = &cobra.Command{
 		Use:   "plan <subcommand>",
 		Short: "Plan-related commands",
-		Long:  ``,
+		Long:  ``, // TODO:
 		Args:  cobra.MinimumNArgs(1),
 	}
 
@@ -24,7 +24,7 @@ func plan() *cobra.Command {
 		Use:     "list",
 		Aliases: []string{"ls"},
 		Short:   "Show list of available plans",
-		Long:    ``,
+		Long:    ``, // TODO:
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			rsp, err := client.ListPlansWithResponse(context.Background())
@@ -58,7 +58,7 @@ func plan() *cobra.Command {
 		Use:     "show <plan_name>",
 		Aliases: []string{"get"},
 		Short:   "Show plan details",
-		Long:    ``,
+		Long:    ``, // TODO:
 		Args:    cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			rsp, err := client.GetPlanWithResponse(

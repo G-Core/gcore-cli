@@ -22,7 +22,7 @@ func binary() *cobra.Command {
 	var cmdBin = &cobra.Command{
 		Use:   "binary <subcommand>",
 		Short: "Binary-related commands",
-		Long:  ``,
+		Long:  ``, // TODO:
 		Args:  cobra.MinimumNArgs(1),
 	}
 
@@ -30,7 +30,7 @@ func binary() *cobra.Command {
 		Use:     "list",
 		Aliases: []string{"ls"},
 		Short:   "Show list of client's binaries",
-		Long:    ``,
+		Long:    ``, // TODO:
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			rsp, err := client.ListBinariesWithResponse(context.Background())
@@ -70,7 +70,7 @@ func binary() *cobra.Command {
 		Use:     "add",
 		Aliases: []string{"upload"},
 		Short:   "Add new binary",
-		Long:    ``,
+		Long:    ``, // TODO:
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			src, err := cmd.Flags().GetString("file")
@@ -90,7 +90,78 @@ func binary() *cobra.Command {
 	}
 	cmdUpload.Flags().StringP("file", "f", sourceStdin, "Wasm binary filename ('-' means stdin)")
 
-	cmdBin.AddCommand(cmdList, cmdUpload)
+	var cmdGet = &cobra.Command{
+		Use:     "show <binary_id>",
+		Aliases: []string{"get"},
+		Short:   "Show binary details",
+		Long:    ``, // TODO:
+		Args:    cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			id, err := strconv.ParseInt(args[0], 10, 64)
+			if err != nil {
+				return fmt.Errorf("parsing binary id: %w", err)
+			}
+
+			rsp, err := client.GetBinaryWithResponse(context.Background(), id)
+			if err != nil {
+				return fmt.Errorf("getting the list of plans: %w", err)
+			}
+			if rsp.StatusCode() != http.StatusOK {
+				return fmt.Errorf("getting the list of plans: %s", string(rsp.Body))
+			}
+
+			if output.Format(cmd) == output.FmtJSON {
+				fmt.Println(string(rsp.Body))
+				return nil
+			}
+
+			fmt.Printf(
+				"Status:\t\t%s\nSource lang:\t%s\n",
+				binStatusToString(rsp.JSON200.Status),
+				srcLangToString(rsp.JSON200.Type),
+			)
+			if rsp.JSON200.UnrefSince != nil {
+				fmt.Printf("Unref since:\t%s\n", *rsp.JSON200.UnrefSince)
+			}
+			if rsp.JSON200.Status == 2 {
+				fmt.Printf("Errors:\t%s\n", *rsp.JSON200.Errors)
+			}
+
+			return nil
+		},
+	}
+
+	var cmdDelete = &cobra.Command{
+		Use:     "delete <binary_id>",
+		Aliases: []string{"rm"},
+		Short:   "Delete the binary",
+		Long:    ``, // TODO:
+		Args:    cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			id, err := strconv.ParseInt(args[0], 10, 64)
+			if err != nil {
+				return fmt.Errorf("parsing binary id: %w", err)
+			}
+
+			rsp, err := client.DelBinaryWithResponse(context.Background(), id)
+			if err != nil {
+				return fmt.Errorf("getting the list of plans: %w", err)
+			}
+			if rsp.StatusCode() != http.StatusOK {
+				return fmt.Errorf("getting the list of plans: %s", string(rsp.Body))
+			}
+
+			if output.Format(cmd) == output.FmtJSON {
+				fmt.Println(string(rsp.Body))
+				return nil
+			}
+
+			fmt.Printf("Binary %d deleted\n", id)
+			return nil
+		},
+	}
+
+	cmdBin.AddCommand(cmdList, cmdUpload, cmdGet, cmdDelete)
 
 	return cmdBin
 }
@@ -135,6 +206,16 @@ func binStatusToString(s int) string {
 		return "compilatoin result exceeds the size limit"
 	case 5:
 		return "unsupported source language"
+	}
+	return "unknown"
+}
+
+func srcLangToString(s int) string {
+	switch s {
+	case 1:
+		return "Rust"
+	case 2:
+		return "JavaScript"
 	}
 	return "unknown"
 }

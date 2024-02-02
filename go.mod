@@ -3,6 +3,7 @@ module github.com/G-core/cli
 go 1.21.5
 
 require (
+	github.com/docker/go-units v0.5.0
 	github.com/getkin/kin-openapi v0.123.0
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/spf13/cobra v1.8.0
@@ -12,7 +13,6 @@ require (
 
 require (
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
-	github.com/docker/go-units v0.5.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-openapi/jsonpointer v0.20.2 // indirect
 	github.com/go-openapi/swag v0.22.8 // indirect

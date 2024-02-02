@@ -42,3 +42,7 @@ func Commands(baseUrl string, authFunc func(ctx context.Context, req *http.Reque
 	cmdFastedge.AddCommand(app(), binary(), plan())
 	return cmdFastedge, nil
 }
+
+func newPointer[T any](val T) *T {
+	return &val
+}

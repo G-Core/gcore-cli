@@ -874,6 +874,9 @@ components:
         errors:
           type: string
           description: Compilation errors
+        unref_since:
+          type: string
+          description: Not used since (UTC)
     call_stats:
       type: object
       description: Edge app call statistics

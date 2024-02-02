@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/G-core/cli/cmd/fastedge"
+	"github.com/G-core/cli/cmd/network"
 	"github.com/G-core/cli/pkg/output"
 )
 
@@ -23,6 +24,8 @@ func Execute() {
 	apiKey := rootCmd.PersistentFlags().StringP("apikey", "a", "", "API key")
 	apiUrl := rootCmd.PersistentFlags().StringP("url", "u", "https://api.gcore.com", "API URL")
 	rootCmd.PersistentFlags().BoolP("force", "f", false, `Assume answer "yes" to all "are you sure?" questions`)
+	rootCmd.PersistentFlags().IntP("project", "", 0, "Cloud project ID")
+	rootCmd.PersistentFlags().IntP("region", "", 0, "Cloud region ID")
 	output.FormatOption(rootCmd)
 	rootCmd.ParseFlags(os.Args[1:])
 
@@ -44,6 +47,7 @@ func Execute() {
 		if *apiKey == "" {
 			return errors.New("API Key must be specified either with -a flag or GCORE_APIKEY env var")
 		}
+
 		return nil
 	}
 
@@ -53,7 +57,14 @@ func Execute() {
 		os.Exit(1)
 	}
 
+	networkCmd, err := network.Commands(*apiUrl, authFunc)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed: %v\n", err)
+		os.Exit(1)
+	}
+
 	rootCmd.AddCommand(fastedgeCmd)
+	rootCmd.AddCommand(networkCmd)
 	err = rootCmd.Execute()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed: %v\n", err)

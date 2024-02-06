@@ -10,8 +10,10 @@ import (
 
 	"github.com/spf13/cobra"
 
+	e "github.com/G-core/cli/pkg/errors"
 	"github.com/G-core/cli/pkg/output"
 	"github.com/G-core/cli/pkg/sdk"
+	"github.com/G-core/cli/pkg/sure"
 )
 
 // app-related commands
@@ -109,6 +111,10 @@ func app() *cobra.Command {
 				}
 			}
 
+			if !sure.AreYou(cmd, fmt.Sprintf("update app %d", id)) {
+				return e.ErrAborted
+			}
+
 			rsp, err := client.PatchAppWithResponse(context.Background(), id, app)
 			if err != nil {
 				return fmt.Errorf("updating the app: %w", err)
@@ -169,7 +175,7 @@ func app() *cobra.Command {
 					app.Url,
 				}
 			}
-			output.Table(table)
+			output.Table(table, output.Format(cmd))
 			return nil
 		},
 	}
@@ -290,6 +296,11 @@ func app() *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("parsing app id: %w", err)
 			}
+
+			if !sure.AreYou(cmd, fmt.Sprintf("delete app %d", id)) {
+				return e.ErrAborted
+			}
+
 			rsp, err := client.DelAppWithResponse(context.Background(), id)
 			if err != nil {
 				return fmt.Errorf("deleting app: %w", err)
@@ -423,6 +434,6 @@ func outputMap(m *map[string]string, title string) {
 		for k, v := range *m {
 			table = append(table, []string{"\t" + k, v})
 		}
-		output.Table(table)
+		output.Table(table, output.FmtHuman)
 	}
 }

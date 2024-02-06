@@ -22,6 +22,7 @@ func Execute() {
 	// global flags, applicable to all sub-commands
 	apiKey := rootCmd.PersistentFlags().StringP("apikey", "a", "", "API key")
 	apiUrl := rootCmd.PersistentFlags().StringP("url", "u", "https://api.gcore.com", "API URL")
+	rootCmd.PersistentFlags().BoolP("force", "f", false, `Assume answer "yes" to all "are you sure?" questions`)
 	output.FormatOption(rootCmd)
 	rootCmd.ParseFlags(os.Args[1:])
 

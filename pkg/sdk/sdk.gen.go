@@ -402,10 +402,10 @@ type ClientInterface interface {
 	GetPlan(ctx context.Context, name string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// AppCalls request
-	AppCalls(ctx context.Context, id int, params *AppCallsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+	AppCalls(ctx context.Context, id int64, params *AppCallsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// AppDuration request
-	AppDuration(ctx context.Context, id int, params *AppDurationParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+	AppDuration(ctx context.Context, id int64, params *AppDurationParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// TotalCalls request
 	TotalCalls(ctx context.Context, params *TotalCallsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -627,7 +627,7 @@ func (c *ClientSDK) GetPlan(ctx context.Context, name string, reqEditors ...Requ
 	return c.Client.Do(req)
 }
 
-func (c *ClientSDK) AppCalls(ctx context.Context, id int, params *AppCallsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+func (c *ClientSDK) AppCalls(ctx context.Context, id int64, params *AppCallsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewAppCallsRequest(c.Server, id, params)
 	if err != nil {
 		return nil, err
@@ -639,7 +639,7 @@ func (c *ClientSDK) AppCalls(ctx context.Context, id int, params *AppCallsParams
 	return c.Client.Do(req)
 }
 
-func (c *ClientSDK) AppDuration(ctx context.Context, id int, params *AppDurationParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+func (c *ClientSDK) AppDuration(ctx context.Context, id int64, params *AppDurationParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewAppDurationRequest(c.Server, id, params)
 	if err != nil {
 		return nil, err
@@ -1163,7 +1163,7 @@ func NewGetPlanRequest(server string, name string) (*http.Request, error) {
 }
 
 // NewAppCallsRequest generates requests for AppCalls
-func NewAppCallsRequest(server string, id int, params *AppCallsParams) (*http.Request, error) {
+func NewAppCallsRequest(server string, id int64, params *AppCallsParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -1239,7 +1239,7 @@ func NewAppCallsRequest(server string, id int, params *AppCallsParams) (*http.Re
 }
 
 // NewAppDurationRequest generates requests for AppDuration
-func NewAppDurationRequest(server string, id int, params *AppDurationParams) (*http.Request, error) {
+func NewAppDurationRequest(server string, id int64, params *AppDurationParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -1478,10 +1478,10 @@ type ClientWithResponsesInterface interface {
 	GetPlanWithResponse(ctx context.Context, name string, reqEditors ...RequestEditorFn) (*GetPlanResponse, error)
 
 	// AppCallsWithResponse request
-	AppCallsWithResponse(ctx context.Context, id int, params *AppCallsParams, reqEditors ...RequestEditorFn) (*AppCallsResponse, error)
+	AppCallsWithResponse(ctx context.Context, id int64, params *AppCallsParams, reqEditors ...RequestEditorFn) (*AppCallsResponse, error)
 
 	// AppDurationWithResponse request
-	AppDurationWithResponse(ctx context.Context, id int, params *AppDurationParams, reqEditors ...RequestEditorFn) (*AppDurationResponse, error)
+	AppDurationWithResponse(ctx context.Context, id int64, params *AppDurationParams, reqEditors ...RequestEditorFn) (*AppDurationResponse, error)
 
 	// TotalCallsWithResponse request
 	TotalCallsWithResponse(ctx context.Context, params *TotalCallsParams, reqEditors ...RequestEditorFn) (*TotalCallsResponse, error)
@@ -2041,7 +2041,7 @@ func (c *ClientWithResponses) GetPlanWithResponse(ctx context.Context, name stri
 }
 
 // AppCallsWithResponse request returning *AppCallsResponse
-func (c *ClientWithResponses) AppCallsWithResponse(ctx context.Context, id int, params *AppCallsParams, reqEditors ...RequestEditorFn) (*AppCallsResponse, error) {
+func (c *ClientWithResponses) AppCallsWithResponse(ctx context.Context, id int64, params *AppCallsParams, reqEditors ...RequestEditorFn) (*AppCallsResponse, error) {
 	rsp, err := c.AppCalls(ctx, id, params, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -2050,7 +2050,7 @@ func (c *ClientWithResponses) AppCallsWithResponse(ctx context.Context, id int, 
 }
 
 // AppDurationWithResponse request returning *AppDurationResponse
-func (c *ClientWithResponses) AppDurationWithResponse(ctx context.Context, id int, params *AppDurationParams, reqEditors ...RequestEditorFn) (*AppDurationResponse, error) {
+func (c *ClientWithResponses) AppDurationWithResponse(ctx context.Context, id int64, params *AppDurationParams, reqEditors ...RequestEditorFn) (*AppDurationResponse, error) {
 	rsp, err := c.AppDuration(ctx, id, params, reqEditors...)
 	if err != nil {
 		return nil, err
@@ -2519,7 +2519,7 @@ func ParseTotalCallsResponse(rsp *http.Response) (*TotalCallsResponse, error) {
 var swaggerSpec = []string{
 
 	"H4sIAAAAAAAC/+xcbW8bOQ7+K8TsHS4BxrGTNLuovznJvvTQ7gZNisNhNzDkEW1rq5G0ksaJL8h/P0ga",
-	"jz0e+a1Jem3Pn5IZSyRFPiQlmvJDkslcSYHCmqT7kJhsjDnx/xKl3B+lpUJtGfqXAyaInrr/KJpMM2WZ",
+	"jz0e+a1Jem3Pn5IZSyRFPiRFWvJDkslcSYHCmqT7kJhsjDnx/xKl3B+lpUJtGfqXAyaInrr/KJpMM2WZ",
 	"FEk3Offv4c1lkiZDqXNik27ChP3+VZImdqowPOIIdfKYJigmngWlzBEg/KrGpZxgrGZi5MbXmf0oJkxL",
 	"kaOwMCGakQFHk6QJ3pNccXQUJkQfJ91kQniBx0nqnk9mzyeOYslCDv7EzLoXXI6ay3orRyMmRpCNiRDI",
 	"4WAwBYpDUnALLfhIhh9JCndjlo2BcC7vDOC94tKJDVyODNwxO4be1ZtDJ54o8qT7e+KnJWkipMDkNk1E",
@@ -2533,37 +2533,37 @@ var swaggerSpec = []string{
 	"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",
-	"ny64U9QJmxEpErIiMXbRYYKJdjLDLzc3V1BPxFtoZ/U6aKF9ttoYovEes8LntdmUdQGbTCIH2N4ENRnh",
-	"nAATLt9k26X+nNzH8f6J5JCy2Ln0nX8PB2edv4NCnaGwjOPhp3JhMRZMfCI5J9APZ02KP5wtCvsE4q87",
-	"TeKvO89A/POmUaf2gJjUQ7Eyd6XCarkxp5hVLOqYzsl9f7b4sBRfe0m6Z+kGVOZBTVFM900xcCtAM3O/",
-	"kmonRnWeRvDeohYus6C9k/ojzIjAQQdyJMJUsfdwhQPki1mk5HrSef3D8dlJjHeOudRTt57B1OIW4aem",
-	"sEWGzYU3reCIMTGUTdD8RIxFF5aYAf/XbewKi2BQT1iG9RqYlWXowjDY5cG02vi7j/+Fg54xmA/4NAUp",
-	"4OLyVz/UHNWTFlSMyyTNp04EJiDj0m2bB2hJ6rK4xqHUCL2rN26A2/gb6ywBRFDIydSX8JwsFoiYggOt",
-	"L87JwoLSTGo3h2W4LMDssR2elx69fD5eO8YDYhAKzbswtlaZbrtNFDvq9/tOS6h/kcb2+/32sFzTH+I7",
-	"6BV27Jw88xb7Q/xbFpARAUMmwiGkOr4AKexYavafAPEc7VhSrwo7ZgYMZu59F37vxcbdHqwVicrMtBnJ",
-	"vyvJtOtyHR6Bgx6zHEswzNacpMkEtQkoOT7qHHUczqVCQRRLusnpUefo2Hk+sWPva+3JcdvvW7sPyQi9",
-	"IziH92ze0KSbvGXG9sLGdlYw9INPOp2Q44Utt+JEKV4K2P7ThAARThn+5LvNYWReL2scQx4btc3fPrpR",
-	"rzrHTf/4IErrGKRu0FlDWIv3tq04YUtiLsfWZkXVHWVBZt4BqHd4U+S5LxZ5ZUE4nPzDVOcBMjIuFngt",
-	"3rrYKk1E0T1Ke0olIX6gseeSTnfS8AbFxhbTUwooWsK4P/g9ycBb2nW1HZ/NROeEzlLB1gh5dfL6udi/",
-	"re3gXxh+jvjpcxG/LrNHIaowtwTwHqVAQOCdA3cD22ly33KnoxGKVmmA1kDSaSsUq5OAwrQKOu0HRh+D",
-	"bThabPrEJfLgE4pokqP1X4b8vmzLN5duN+Cjsx/s1u0j3Kze2w0lmnliDgX8uWY27t4eb+Pe8QUi+dsB",
-	"26VHhTuqx8D2mMYT1s9ov2zMvGRA/9YRWMPHz2j9uXyWwWKplths3MTIlXv9JaFkn/H3cfKT4+QHRcnq",
-	"OLlVUk4TVURiaaD89TsK4fy3oRd7o8ukD7UDfPk9cFkQWfM1z+3e2fbOttMO2EOrLKytPHqfzwZ9juN3",
-	"7bvrb+EEPphrb2anSqG3y3Zo/0kmJDDylc/oKT30eeA/yYRch6HrolJecMsU0bbtwluLEuuXiCKT1K3O",
-	"sSHZRzLC/sxk5eybUvULRpWZRdsyViPJ/fcj/svuXeY8LgbcemV3WYwqHFcBsNnMUvHfOPgxWtusJ4On",
-	"BsjNCeQp+N3XB7aKjqV7wNw/IBDwVebe9bvtPFGTu9UueG2lxvMZ0rbbEtT8IA6bldj9kpD6v62RHZ+u",
-	"7F5iBqyUMGCjvbds7S0eyfMvYpx/wByGW7hJYTanqvdu0BOT1O6pJk2szPkzJacdMs2c7z4p7d2snpSc",
-	"J8w6C3dKR1uUqat8tPaYvNjqua9Sf1tV6rWRe3Wt+osGzrNUJ0q97KvVdpvkHs6uq4sCP6O98EPeYfKC",
-	"Ris7bPdGs2WroW9c8b07oaHUd6oGJc3NeVEar7Km4kSsL/Bc+RHPVd1p7oa+0hLOvM9GlQqa6TgorK7h",
-	"9oMLhI/rnOYq1G/XRtlfSY6zOnZZ740E2/IK0epwu7z8lwyuXsy9l1pvr8g3gUto8S2+vl7u+46rnV0U",
-	"NT2lLsru5LWw6SkFPgPvnpmb7YPLxN9XLaEKNZPUhSNtfcNcCu9/ujg9PX0NZYIvJfirQJ9kShGGWubb",
-	"bQ/WNpluFAwFDX18B0JaYCLjBUUKTFi50NgaBh9uKbuVLyr5SBNRcKKZnabABBjMpKBmhTDGolorTtVC",
-	"+n3nBfZY213nmd81+jqj/8XsHlRIs0ZhxoYsW/q25dqvMOLWs2bbjZ59Oe/K3Tv33rm/CudeuqnydTr4",
-	"j/FbNLu7u5WW8JDHVzr6jRuzVRLfu+LeFf+P86x7CsfZ5bb1yvfcdH9LIbiP/y2GZKubFYmzSUkv9iMo",
-	"BohGMGiNO32Vh+yD8rINyWUhbOohLwt7mII3X7i4Ut1nOZrDJ2z5m3Cc1Vo8s4UbL+XlGP+rNWDHxPoB",
-	"xF9arT5FCndj9E0fwAxoIhY4VlWcJtOeUoHhwmu/yoWbOJ6nxiFqFBn602dZpSblrRN/uKluzkhhCfOi",
-	"tKp4adA6TzMpmCIbAzGAsV/lWRDaN6w0Bb6ubjQuSgmF/52Ycup1ifvGFXQPoBbHCfJKooXCyZzCrFDy",
-	"ePv43wAAAP//1QWZJ/NIAAA=",
+	"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",
+	"NwAA//+BN2QDFUkAAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

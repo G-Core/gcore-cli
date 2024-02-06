@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/golang-module/carbon/v2"
 	"github.com/spf13/cobra"
 
 	"github.com/G-core/cli/pkg/sdk"
@@ -33,13 +34,19 @@ func Commands(baseUrl string, authFunc func(ctx context.Context, req *http.Reque
 			if err != nil {
 				return fmt.Errorf("cannot init SDK: %w", err)
 			}
+
+			carbon.SetDefault(carbon.Default{
+				Timezone: carbon.UTC,
+				Locale:   "en",
+			})
+
 			return nil
 		},
 	}
 	cmdFastedge.PersistentFlags().BoolVar(&local, "local", false, "local testing")
 	cmdFastedge.PersistentFlags().MarkHidden("local")
 
-	cmdFastedge.AddCommand(app(), binary(), plan())
+	cmdFastedge.AddCommand(app(), binary(), plan(), stat())
 	return cmdFastedge, nil
 }
 

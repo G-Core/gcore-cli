@@ -1,7 +1,9 @@
 package output
 
 import (
+	"encoding/csv"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -12,8 +14,10 @@ type outputFormat string
 const (
 	FmtHuman       outputFormat = "human"
 	FmtJSON        outputFormat = "json"
+	FmtCSV         outputFormat = "csv"
 	outputOption                = "output"
 	tblColumnSpace              = 2
+	csvDelimiter                = ","
 )
 
 var globalFormat outputFormat
@@ -25,29 +29,35 @@ func (f *outputFormat) String() string {
 
 func (f *outputFormat) Set(v string) error {
 	switch v {
-	case string(FmtHuman), string(FmtJSON):
+	case string(FmtHuman), string(FmtJSON), string(FmtCSV):
 		*f = outputFormat(v)
 	case "":
 		*f = FmtHuman
 	default:
-		return fmt.Errorf(`must be one of "%s", "%s"`, FmtHuman, FmtJSON)
+		return fmt.Errorf(`must be one of "%s", "%s", "%s"`, FmtHuman, FmtJSON, FmtCSV)
 	}
 	return nil
 }
 
 func (f *outputFormat) Type() string {
-	return fmt.Sprintf(`("%s" | "%s")`, FmtHuman, FmtJSON)
+	return fmt.Sprintf(`("%s" | "%s" | "%s")`, FmtHuman, FmtJSON, FmtCSV)
 }
 
 func FormatOption(cmd *cobra.Command) {
-	cmd.PersistentFlags().VarP(&globalFormat, outputOption, "o", `Output format (default "human")`)
+	cmd.PersistentFlags().VarP(&globalFormat, outputOption, "o", `Output format ("json", "csv" or "human', default "human")`)
 }
 
 func Format(cmd *cobra.Command) outputFormat {
 	return globalFormat
 }
 
-func Table(lines [][]string) {
+func Table(lines [][]string, format outputFormat) {
+	if format == FmtCSV {
+		w := csv.NewWriter(os.Stdout)
+		w.WriteAll(lines)
+		return
+	}
+
 	// find max width for every column
 	widths := make([]int, len(lines[0]))
 	for _, line := range lines {

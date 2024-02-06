@@ -87,6 +87,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int64
       - name: from
         in: query
         description: Reporting period start time, RFC3339 format
@@ -139,6 +140,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int64
       - name: from
         in: query
         description: Reporting period start time, RFC3339 format

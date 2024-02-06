@@ -60,7 +60,7 @@ func binary() *cobra.Command {
 					unrefString(bin.UnrefSince),
 				}
 			}
-			output.Table(table)
+			output.Table(table, output.Format(cmd))
 
 			return nil
 		},

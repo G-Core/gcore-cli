@@ -22,7 +22,6 @@ func binary() *cobra.Command {
 	var cmdBin = &cobra.Command{
 		Use:   "binary <subcommand>",
 		Short: "Binary-related commands",
-		Long:  ``, // TODO:
 		Args:  cobra.MinimumNArgs(1),
 	}
 
@@ -30,7 +29,6 @@ func binary() *cobra.Command {
 		Use:     "list",
 		Aliases: []string{"ls"},
 		Short:   "Show list of client's binaries",
-		Long:    ``, // TODO:
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			rsp, err := client.ListBinariesWithResponse(context.Background())
@@ -70,7 +68,8 @@ func binary() *cobra.Command {
 		Use:     "add",
 		Aliases: []string{"upload"},
 		Short:   "Add new binary",
-		Long:    ``, // TODO:
+		Long:    `Upload compiled Wasm binary. Specify binary filename with "--file" flag.
+If this flag is omitted, file contant is read from stdin.`,
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			src, err := cmd.Flags().GetString("file")
@@ -88,13 +87,12 @@ func binary() *cobra.Command {
 			return nil
 		},
 	}
-	cmdUpload.Flags().StringP("file", "f", sourceStdin, "Wasm binary filename ('-' means stdin)")
+	cmdUpload.Flags().String("file", sourceStdin, "Wasm binary filename ('-' means stdin)")
 
 	var cmdGet = &cobra.Command{
 		Use:     "show <binary_id>",
 		Aliases: []string{"get"},
 		Short:   "Show binary details",
-		Long:    ``, // TODO:
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := strconv.ParseInt(args[0], 10, 64)
@@ -135,7 +133,7 @@ func binary() *cobra.Command {
 		Use:     "delete <binary_id>",
 		Aliases: []string{"rm"},
 		Short:   "Delete the binary",
-		Long:    ``, // TODO:
+		Long:    `Delete the binary. Binary cannot be deleted if it is still referenced by any app.`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := strconv.ParseInt(args[0], 10, 64)

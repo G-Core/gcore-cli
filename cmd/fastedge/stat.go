@@ -8,18 +8,17 @@ import (
 	"strconv"
 	"time"
 
+	sdk "github.com/G-Core/FastEdge-client-sdk-go"
 	"github.com/golang-module/carbon/v2"
 	"github.com/spf13/cobra"
 
 	"github.com/G-core/cli/pkg/output"
-	"github.com/G-core/cli/pkg/sdk"
 )
 
 func stat() *cobra.Command {
 	var cmdStat = &cobra.Command{
 		Use:   "stat <subcommand>",
 		Short: "Statistics",
-		Long:  ``, // TODO:
 		Args:  cobra.MinimumNArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			rsp, err := client.GetClientMeWithResponse(context.Background())
@@ -60,8 +59,13 @@ func stat() *cobra.Command {
 		Use:     "app_calls <app_id>",
 		Aliases: []string{"calls"},
 		Short:   "Show app calls statistic",
-		Long:    ``, // TODO:
-		Args:    cobra.ExactArgs(1),
+		Long: `Show number of app calls, grouped by time slots and HTTP statuses.
+By default it reports every hour from the beginning of current day (UTC),
+but you can change reporting interval using "--from" and "--to" flags
+(specifying date/time in format "YYYY-MM-DD HH:mm:SS", where either date or time,
+can be omitted, or as UNIX timestamp) and reporting step duration with flag
+"--step" (in seconds).`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := strconv.ParseInt(args[0], 10, 64)
 			if err != nil {
@@ -167,9 +171,14 @@ func stat() *cobra.Command {
 	var cmdDuration = &cobra.Command{
 		Use:     "app_duration <app_id>",
 		Aliases: []string{"duration", "time", "timeing"},
-		Short:   "Show app calls statistic",
-		Long:    ``, // TODO:
-		Args:    cobra.ExactArgs(1),
+		Short:   "Show app execution duration",
+		Long: `Show duration of app calls, grouped by time slots. All times are in msec
+By default it reports every hour from the beginning of current day (UTC),
+but you can change reporting interval using "--from" and "--to" flags
+(specifying date/time in format "YYYY-MM-DD HH:mm:SS", where either date or time,
+can be omitted, or as UNIX timestamp) and reporting step duration with flag
+"--step" (in seconds).`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := strconv.ParseInt(args[0], 10, 64)
 			if err != nil {
@@ -222,12 +231,12 @@ func stat() *cobra.Command {
 			for i, d := range *rsp.JSON200 {
 				table[i+1] = []string{
 					d.Time.Format("2006-01-02T15:04:05"),
-					strconv.FormatInt(d.Min, 10),
-					strconv.FormatInt(d.Avg, 10),
-					strconv.FormatInt(d.Median, 10),
-					strconv.FormatInt(d.Perc75, 10),
-					strconv.FormatInt(d.Perc90, 10),
-					strconv.FormatInt(d.Max, 10),
+					scaleToMsec(d.Min),
+					scaleToMsec(d.Avg),
+					scaleToMsec(d.Median),
+					scaleToMsec(d.Perc75),
+					scaleToMsec(d.Perc90),
+					scaleToMsec(d.Max),
 				}
 			}
 
@@ -240,6 +249,10 @@ func stat() *cobra.Command {
 	cmdStat.AddCommand(cmdCalls, cmdDuration)
 
 	return cmdStat
+}
+
+func scaleToMsec(src int64) string {
+	return fmt.Sprintf("%.0f", float64(src)/1000.0)
 }
 
 func statFlags(cmd *cobra.Command) {

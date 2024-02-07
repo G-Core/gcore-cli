@@ -8,11 +8,11 @@ import (
 	"strconv"
 	"strings"
 
+	sdk "github.com/G-Core/FastEdge-client-sdk-go"
 	"github.com/spf13/cobra"
 
 	e "github.com/G-core/cli/pkg/errors"
 	"github.com/G-core/cli/pkg/output"
-	"github.com/G-core/cli/pkg/sdk"
 	"github.com/G-core/cli/pkg/sure"
 )
 
@@ -21,7 +21,6 @@ func app() *cobra.Command {
 	var cmdApp = &cobra.Command{
 		Use:   "app <subcommand>",
 		Short: "App-related commands",
-		Long:  ``, // TODO:
 		Args:  cobra.MinimumNArgs(1),
 	}
 
@@ -29,8 +28,11 @@ func app() *cobra.Command {
 		Use:     "create",
 		Aliases: []string{"add", "deploy"},
 		Short:   "Add new app",
-		Long:    ``, // TODO:
-		Args:    cobra.NoArgs,
+		Long: `Add new FastEdge app, specifying app properties using flags.
+By default, unless --disabled is specified, app is automatically deployed on all edges.
+You can use either previously-uploaded binary, by specifying "--binary <id>", or
+uploading binary using "--file <filename>". To load file from stdin, use "-" as filename`,
+		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			app, err := parseAppProperties(cmd)
 			if err != nil {
@@ -83,9 +85,11 @@ func app() *cobra.Command {
 		Use:   "update <app_id>",
 		Short: "Update the app",
 		Long: `This command allows to change only specified properties of the app,
-		omitted properties are left intact. When changing key-value properties, such
-		as 'env' and 'rsp_headers', new keys are added to the list, existing keys are
-		updated, keys with empty values are deleted`,
+omitted properties are left intact. When changing key-value properties, such
+as 'env' and 'rsp_headers', new keys are added to the list, existing keys are
+updated, keys with empty values are deleted.
+You can use either previously-uploaded binary, by specifying "--binary <id>", or
+uploading binary using "--file <filename>". To load file from stdin, use "-" as filename`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := strconv.ParseInt(args[0], 10, 64)
@@ -144,7 +148,6 @@ func app() *cobra.Command {
 		Use:     "list",
 		Aliases: []string{"ls"},
 		Short:   "Show list of client's apps",
-		Long:    ``, // TODO:
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			rsp, err := client.ListAppsWithResponse(context.Background())
@@ -184,8 +187,10 @@ func app() *cobra.Command {
 		Use:     "show <app_id>",
 		Aliases: []string{"get"},
 		Short:   "Show app details",
-		Long:    ``, // TODO:
-		Args:    cobra.ExactArgs(1),
+		Long: `Show app properties. This command doesn't show app call statisrics.
+To see statistics, use "fastedge stat app_calls" and "fastedge stat app_duration"
+commands.`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := strconv.ParseInt(args[0], 10, 64)
 			if err != nil {
@@ -224,7 +229,6 @@ func app() *cobra.Command {
 	var cmdEnable = &cobra.Command{
 		Use:   "enable <app_id>",
 		Short: "Enable the app",
-		Long:  ``, // TODO:
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := strconv.ParseInt(args[0], 10, 64)
@@ -256,7 +260,6 @@ func app() *cobra.Command {
 	var cmdDisable = &cobra.Command{
 		Use:   "disable <app_id>",
 		Short: "Disable the app",
-		Long:  ``, // TODO:
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := strconv.ParseInt(args[0], 10, 64)
@@ -289,8 +292,10 @@ func app() *cobra.Command {
 		Use:     "delete <app_id>",
 		Short:   "Delete the app",
 		Aliases: []string{"rm"},
-		Long:    ``, // TODO:
-		Args:    cobra.ExactArgs(1),
+		Long: `This command deletes the app. The binary, referenced by the app, is not deleted,
+however binaries, not referenced by any app, get deleted by cleanup process regularly,
+so if you don't want this to happen, consider disabling the app to keep binary referenced`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := strconv.ParseInt(args[0], 10, 64)
 			if err != nil {
@@ -333,8 +338,8 @@ func app() *cobra.Command {
 
 func appPropertiesFlags(cmd *cobra.Command) {
 	cmd.Flags().String("name", "", "App name")
-	cmd.Flags().Int64("binary", -1, "Wasm binary id")
-	cmd.Flags().StringP("file", "f", "", "Wasm binary filename ('-' means stdin)")
+	cmd.Flags().Int64("binary", 0, "Wasm binary id")
+	cmd.Flags().String("file", "", "Wasm binary filename ('-' means stdin)")
 	cmd.Flags().String("plan", "", "Plan name")
 	cmd.Flags().Bool("disabled", false, "Set status to 'disabled'")
 	cmd.Flags().StringSlice("env", nil, "Environment, in name=value format")
@@ -364,7 +369,7 @@ func parseAppProperties(cmd *cobra.Command) (sdk.App, error) {
 	if err != nil {
 		return app, err
 	}
-	if binID != -1 {
+	if binID != 0 {
 		app.Binary = &binID
 	}
 

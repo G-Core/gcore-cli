@@ -13,6 +13,7 @@ require (
 )
 
 require (
+	github.com/G-Core/FastEdge-client-sdk-go v0.0.0-20240207072129-14cabf7f59f9 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-openapi/jsonpointer v0.20.2 // indirect

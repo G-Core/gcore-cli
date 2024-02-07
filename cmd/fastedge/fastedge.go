@@ -8,7 +8,7 @@ import (
 	"github.com/golang-module/carbon/v2"
 	"github.com/spf13/cobra"
 
-	"github.com/G-core/cli/pkg/sdk"
+	sdk "github.com/G-Core/FastEdge-client-sdk-go"
 )
 
 var client *sdk.ClientWithResponses

@@ -18,7 +18,10 @@ import (
 )
 
 func Execute() {
-	var rootCmd = &cobra.Command{Use: "gcore"}
+	var rootCmd = &cobra.Command{
+		Use:          "gcore",
+		SilenceUsage: true,
+	}
 
 	// global flags, applicable to all sub-commands
 	apiKey := rootCmd.PersistentFlags().StringP("apikey", "a", "", "API key")

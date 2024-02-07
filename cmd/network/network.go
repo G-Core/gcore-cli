@@ -7,6 +7,8 @@ import (
 	"strconv"
 
 	cloud "github.com/G-Core/gcore-cloud-sdk-go"
+	"github.com/G-core/cli/pkg/human"
+
 	"github.com/spf13/cobra"
 )
 
@@ -16,6 +18,90 @@ var (
 	projectID int
 	regionID  int
 )
+
+type network struct {
+	// Id Network ID
+	Id string
+	// Name Network name
+	Name string
+	// Type Network type (vlan, vxlan)
+	Type string
+	// External True if the network has `router:external` attribute
+	External bool
+	// Default True if the network has is_default attribute
+	Default bool
+	// Shared True when the network is shared with your project by external owner
+	Shared bool
+	// Mtu MTU (maximum transmission unit). Default value is 1450
+	Mtu int
+	// Subnets List of subnetworks
+	Subnets []string
+	// Metadata Network metadata
+	Metadata []cloud.MetadataItemSchema
+	// SegmentationId Id of network segment
+	SegmentationId int
+	// ProjectId Project ID
+	ProjectId int
+	// Region Region name
+	Region string
+	// RegionId Region ID
+	RegionId int
+	// CreatedAt Datetime when the network was created
+	CreatedAt string
+	// UpdatedAt Datetime when the network was last updated
+	UpdatedAt string
+}
+
+func init() {
+	human.RegisterMarshalerFunc(cloud.NetworkSchema{}, func(i interface{}, opt *human.MarshalOpt) (body string, err error) {
+		instance := i.(cloud.NetworkSchema)
+		s := network{
+			Id:             instance.Id,
+			Name:           instance.Name,
+			Type:           instance.Type,
+			External:       instance.External,
+			Default:        instance.Default,
+			Shared:         instance.Shared,
+			Mtu:            instance.Mtu,
+			Subnets:        instance.Subnets,
+			Metadata:       instance.Metadata,
+			SegmentationId: instance.SegmentationId,
+			ProjectId:      instance.ProjectId,
+			Region:         instance.Region,
+			RegionId:       instance.RegionId,
+			CreatedAt:      instance.CreatedAt,
+			UpdatedAt:      instance.UpdatedAt,
+		}
+
+		return human.Marshal(s, nil)
+	})
+
+	human.RegisterMarshalerFunc([]cloud.NetworkSchema{}, func(i interface{}, opt *human.MarshalOpt) (body string, err error) {
+		instances := i.([]cloud.NetworkSchema)
+		s := make([]network, len(instances))
+		for i, instance := range instances {
+			s[i] = network{
+				Id:             instance.Id,
+				Name:           instance.Name,
+				Type:           instance.Type,
+				External:       instance.External,
+				Default:        instance.Default,
+				Shared:         instance.Shared,
+				Mtu:            instance.Mtu,
+				Subnets:        instance.Subnets,
+				Metadata:       instance.Metadata,
+				SegmentationId: instance.SegmentationId,
+				ProjectId:      instance.ProjectId,
+				Region:         instance.Region,
+				RegionId:       instance.RegionId,
+				CreatedAt:      instance.CreatedAt,
+				UpdatedAt:      instance.UpdatedAt,
+			}
+		}
+
+		return human.Marshal(s, nil)
+	})
+}
 
 // top-level cloud network command
 func Commands(baseUrl string, authFunc func(ctx context.Context, req *http.Request) error) (*cobra.Command, error) {

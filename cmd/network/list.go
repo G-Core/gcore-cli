@@ -1,11 +1,13 @@
 package network
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/G-core/cli/pkg/human"
+	"net/http"
+
+	"github.com/G-core/cli/pkg/errors"
 	"github.com/G-core/cli/pkg/output"
 	"github.com/spf13/cobra"
-	"net/http"
 )
 
 func list() *cobra.Command {
@@ -22,79 +24,32 @@ func list() *cobra.Command {
 				return fmt.Errorf("failed to get network list: %w", err)
 			}
 
-			if resp.StatusCode() != http.StatusOK {
-				// TODO: process errors from the server
-				return fmt.Errorf("getting the list of networks: %s", string(resp.Body))
-			}
+			if resp.StatusCode() == http.StatusOK {
+				output.Print(resp.JSON200.Results)
 
-			if output.Format(cmd) == output.FmtJSON {
-				fmt.Println(string(resp.Body))
 				return nil
 			}
 
-			var body string
-			if resp.JSON200 == nil {
-				body, err = human.Marshal(nil, &human.MarshalOpt{
-					Title: "Networks",
-				})
-			} else {
-				// TODO: Automate this. At least we need to show ID first.
-				body, err = human.Marshal(resp.JSON200.Results, &human.MarshalOpt{
-					Title: "Networks",
-					Fields: []*human.MarshalFieldOpt{
-						{
-							FieldName: "Id",
-							Label:     "ID",
-						},
-						{
-							FieldName: "Name",
-						},
-						{
-							FieldName: "Type",
-						},
-						{
-							FieldName: "Shared",
-						},
-						{
-							FieldName: "Mtu",
-						},
-						{
-							FieldName: "Default",
-						},
-						{
-							FieldName: "Subnets",
-						},
-						{
-							FieldName: "Metadata",
-						},
-						{
-							FieldName: "External",
-						},
-						{
-							FieldName: "CreatedAt",
-						},
-						{
-							FieldName: "UpdatedAt",
-						},
-						{
-							FieldName: "ProjectId",
-							Label:     "Project",
-						},
-						{
-							FieldName: "Region",
-						},
-						{
-							FieldName: "RegionId",
-						},
-					},
-				})
+			if output.IsJSON() {
+				fmt.Println(string(resp.Body))
+
+				return nil
 			}
 
-			if err != nil {
-				return fmt.Errorf("failed to marshal to human: %w", err)
+			s := struct {
+				Message string `json:"message"`
+			}{}
+
+			if err := json.Unmarshal(resp.Body, &s); err != nil {
+				output.Print(err)
+
+				return nil
 			}
 
-			fmt.Println(body)
+			output.Print(&errors.CliError{
+				Message: s.Message,
+				Code:    1,
+			})
 
 			return nil
 		},

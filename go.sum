@@ -1,7 +1,7 @@
 github.com/G-Core/FastEdge-client-sdk-go v0.0.0-20240207072129-14cabf7f59f9 h1:YUJ5Dr4oHqG7YZl/Tj4AnJ801vyp8EMVXNlZheos3TQ=
 github.com/G-Core/FastEdge-client-sdk-go v0.0.0-20240207072129-14cabf7f59f9/go.mod h1:ggyUVhy8/OCMBY4nbm7n9qDoPioROCk4vHhDJq9w7qE=
-github.com/G-Core/gcore-cloud-sdk-go v0.0.0-20240206144015-9accf68bfc18 h1:9g1ZY5txxwGoKunh4up4MUoRVc1PpKDbNd5xnXC0FSM=
-github.com/G-Core/gcore-cloud-sdk-go v0.0.0-20240206144015-9accf68bfc18/go.mod h1:hbcTEaIRTBObzaQAano0+1fla7D6C65TsUvtwjlC9qA=
+github.com/G-Core/gcore-cloud-sdk-go v0.0.0-20240209141917-a7d433d9f35f h1:ukjXJReWW76Pa/moHMjKneijVSnDH0QZ1DGBVif+r1k=
+github.com/G-Core/gcore-cloud-sdk-go v0.0.0-20240209141917-a7d433d9f35f/go.mod h1:jmno45Awnlr4JuzRUK1TmY35TiGA9vZz3tgCK+4pizs=
 github.com/RaveNoX/go-jsoncommentstrip v1.0.0/go.mod h1:78ihd09MekBnJnxpICcwzCMzGrKSKYe4AqU6PDYYpjk=
 github.com/alecthomas/assert v1.0.0 h1:3XmGh/PSuLzDbK3W2gUbRXwgW5lqPkuqvRgeQ30FI5o=
 github.com/alecthomas/assert v1.0.0/go.mod h1:va/d2JC+M7F6s+80kl/R3G7FUiW6JzUO+hPhLyJ36ZY=

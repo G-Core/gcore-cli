@@ -1,12 +1,15 @@
 package network
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
-	"github.com/G-core/cli/pkg/human"
-	"github.com/G-core/cli/pkg/output"
 	"github.com/spf13/cobra"
+
+	"github.com/G-core/cli/pkg/errors"
+	"github.com/G-core/cli/pkg/output"
 )
 
 func show() *cobra.Command {
@@ -23,24 +26,33 @@ func show() *cobra.Command {
 				return fmt.Errorf("failed to get network instance: %w", err)
 			}
 
-			if resp.StatusCode() != http.StatusOK {
-				// TODO: process errors from the server
-				return fmt.Errorf("getting the network instance: %s", string(resp.Body))
-			}
+			if resp.StatusCode() == http.StatusOK {
+				output.Print(resp.JSON200)
 
-			if output.Format(cmd) == output.FmtJSON {
-				fmt.Println(string(resp.Body))
 				return nil
 			}
 
-			body, err := human.Marshal(resp.JSON200, &human.MarshalOpt{
-				Title: "Network instance",
-			})
-			if err != nil {
-				return fmt.Errorf("failed to marshal data to 'human' format: %w", err)
+			if output.IsJSON() {
+				fmt.Println(string(resp.Body))
+
+				return nil
 			}
 
-			fmt.Println(body)
+			s := struct {
+				Message string `json:"message"`
+			}{}
+
+			if err := json.Unmarshal(resp.Body, &s); err != nil {
+				log.Println(err)
+				output.Print(err)
+
+				return nil
+			}
+
+			output.Print(&errors.CliError{
+				Err:  fmt.Errorf("%s", s.Message),
+				Code: 1,
+			})
 
 			return nil
 		},

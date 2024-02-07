@@ -1,8 +1,0 @@
-package: sdk
-generate:
-  embedded-spec: true
-  models: true
-  client: true
-output: pkg/sdk/sdk.gen.go
-output-options:
-  client-type-name: ClientSDK

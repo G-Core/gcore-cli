@@ -1,7 +1,6 @@
 package network
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -36,22 +35,7 @@ func list() *cobra.Command {
 				return nil
 			}
 
-			s := struct {
-				Message string `json:"message"`
-			}{}
-
-			if err := json.Unmarshal(resp.Body, &s); err != nil {
-				output.Print(err)
-
-				return nil
-			}
-
-			output.Print(&errors.CliError{
-				Message: s.Message,
-				Code:    1,
-			})
-
-			return nil
+			return errors.ParseCloudErr(resp.Body)
 		},
 	}
 

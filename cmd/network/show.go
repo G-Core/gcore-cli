@@ -1,9 +1,7 @@
 package network
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/spf13/cobra"
@@ -23,6 +21,7 @@ func show() *cobra.Command {
 			var networkID = args[0]
 			resp, err := client.GetNetworkInstanceWithResponse(cmd.Context(), projectID, regionID, networkID)
 			if err != nil {
+				// TODO: Should we show this errors to user?
 				return fmt.Errorf("failed to get network instance: %w", err)
 			}
 
@@ -38,23 +37,7 @@ func show() *cobra.Command {
 				return nil
 			}
 
-			s := struct {
-				Message string `json:"message"`
-			}{}
-
-			if err := json.Unmarshal(resp.Body, &s); err != nil {
-				log.Println(err)
-				output.Print(err)
-
-				return nil
-			}
-
-			output.Print(&errors.CliError{
-				Err:  fmt.Errorf("%s", s.Message),
-				Code: 1,
-			})
-
-			return nil
+			return errors.ParseCloudErr(resp.Body)
 		},
 	}
 

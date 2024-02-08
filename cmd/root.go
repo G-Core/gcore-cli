@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -14,13 +13,16 @@ import (
 
 	"github.com/G-core/cli/cmd/fastedge"
 	"github.com/G-core/cli/cmd/network"
+	"github.com/G-core/cli/pkg/errors"
+	"github.com/G-core/cli/pkg/human"
 	"github.com/G-core/cli/pkg/output"
 )
 
 func Execute() {
 	var rootCmd = &cobra.Command{
-		Use:          "gcore",
-		SilenceUsage: true,
+		Use:           "gcore",
+		SilenceUsage:  true,
+		SilenceErrors: true,
 	}
 
 	// global flags, applicable to all sub-commands
@@ -46,10 +48,20 @@ func Execute() {
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		if *apiUrl == "" {
-			return errors.New("URL must be specified either with -u flag or GCORE_URL env var")
+			return &errors.CliError{
+				Message: "URL for API isn't specified",
+				Hint:    "You can specify it by -u flag or GCORE_URL env variable",
+				Code:    1,
+			}
 		}
+
 		if *apiKey == "" {
-			return errors.New("API Key must be specified either with -a flag or GCORE_APIKEY env var")
+			return &errors.CliError{
+				Message: "API key must be specified",
+				Hint: "You can specify it with -a flag or GCORE_APIKEY env variable.\n" +
+					"To get an APIKEY visit https://accounts.gcore.com/profile/api-tokens",
+				Code: 1,
+			}
 		}
 
 		return nil
@@ -71,8 +83,15 @@ func Execute() {
 	rootCmd.AddCommand(networkCmd)
 	err = rootCmd.Execute()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed: %v\n", err)
-		os.Exit(1)
+		cliErr, ok := err.(*errors.CliError)
+		if !ok {
+			fmt.Fprintf(os.Stderr, "Failed: %v\n", err)
+			os.Exit(1)
+		}
+
+		body, _ := human.Marshal(cliErr, nil)
+		fmt.Println(body)
+		os.Exit(cliErr.Code)
 	}
 }
 

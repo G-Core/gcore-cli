@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"regexp"
 	"strconv"
 
 	cloud "github.com/G-Core/gcore-cloud-sdk-go"
@@ -15,9 +16,12 @@ import (
 var (
 	client *cloud.ClientWithResponses
 
-	projectID int
-	regionID  int
+	projectID     int
+	regionID      int
+	waitForResult bool
 )
+
+var reNetworkName = regexp.MustCompile("^[a-zA-Z0-9][a-zA-Z 0-9._\\-]{1,61}[a-zA-Z0-9._]$")
 
 type network struct {
 	// Id Network ID
@@ -139,6 +143,8 @@ func Commands(baseUrl string, authFunc func(ctx context.Context, req *http.Reque
 			if err != nil {
 				return fmt.Errorf("--region flag value must to be int: %w", err)
 			}
+
+			waitForResult = cmd.Flag("wait").Value.String() == "true"
 
 			return nil
 		},

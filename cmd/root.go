@@ -29,6 +29,7 @@ func Execute() {
 	rootCmd.PersistentFlags().BoolP("force", "f", false, `Assume answer "yes" to all "are you sure?" questions`)
 	rootCmd.PersistentFlags().IntP("project", "", 0, "Cloud project ID")
 	rootCmd.PersistentFlags().IntP("region", "", 0, "Cloud region ID")
+	rootCmd.PersistentFlags().BoolP("wait", "", false, "Wait for command result")
 	output.FormatOption(rootCmd)
 	rootCmd.ParseFlags(os.Args[1:])
 

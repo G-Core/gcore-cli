@@ -3,6 +3,7 @@ package network
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -40,6 +41,7 @@ func validateNetworkType(netType string) *errors.CliError {
 	}
 }
 
+// TODO: Metadata flag
 var (
 	name        string
 	networkType string
@@ -49,20 +51,11 @@ var (
 func create() *cobra.Command {
 	// createCmd represents the create command
 	var createCmd = &cobra.Command{
-		Use:     "create",
+		Use:     "create <name>",
 		Aliases: []string{"c"},
 		Short:   "Create a network",
 		Long:    ``,
-		Args:    cobra.ExactArgs(1),
-		PreRunE: func(cmd *cobra.Command, args []string) error {
-			cmd.PersistentFlags().StringVar(&networkType, "type",
-				string(cloud.CreateNetworkSchemaTypeVxlan),
-				"Network type, vlan or vxlan network type is allowed. Default value is vxlan")
-			cmd.PersistentFlags().BoolVar(&router, "router", true, "Create router. Default is true.")
-
-			return nil
-		},
-
+		Args:    cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// TODO: Autogenerate names for networks as option
 			name = args[0]
@@ -76,7 +69,7 @@ func create() *cobra.Command {
 				return err
 			}
 
-			_, err := client.PostNetworkWithResponse(cmd.Context(), projectID, regionID, cloud.CreateNetworkSchema{
+			resp, err := client.PostNetworkWithResponse(cmd.Context(), projectID, regionID, cloud.CreateNetworkSchema{
 				Name:         name,
 				Type:         cloud.CreateNetworkSchemaType(networkType),
 				CreateRouter: router,
@@ -90,9 +83,26 @@ func create() *cobra.Command {
 				return nil
 			}
 
-			return nil
+			var networkID string
+			_, err = cloud.WaitTaskAndReturnResult(cmd.Context(), client, resp.JSON200.Tasks[0], true, time.Second*5, func(task *cloud.TaskSchema) (any, error) {
+				networkID = task.CreatedResources.Networks[0]
+				return nil, nil
+			})
+
+			if err != nil {
+				return &errors.CliError{
+					Err: fmt.Errorf("task %s: %w", resp.JSON200.Tasks[0], err),
+				}
+			}
+
+			return displayNetwork(cmd.Context(), networkID)
 		},
 	}
+
+	createCmd.PersistentFlags().StringVarP(&networkType, "type", "",
+		string(cloud.CreateNetworkSchemaTypeVxlan),
+		"Network type, vlan or vxlan network type is allowed. Default value is vxlan")
+	createCmd.PersistentFlags().BoolVarP(&router, "router", "", true, "Create router. Default is true.")
 
 	return createCmd
 }

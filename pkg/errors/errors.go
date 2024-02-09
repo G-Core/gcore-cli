@@ -8,6 +8,7 @@ import (
 
 var ErrAborted = errors.New("operation aborted")
 
+// TODO: It's not CLI work. SDK should do it.
 func ParseCloudErr(body []byte) *CliError {
 	s := struct {
 		Message string `json:"message"`

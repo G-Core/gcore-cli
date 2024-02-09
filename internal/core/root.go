@@ -1,4 +1,4 @@
-package cmd
+package core
 
 import (
 	"context"
@@ -11,11 +11,11 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
-	"github.com/G-core/cli/cmd/fastedge"
-	"github.com/G-core/cli/cmd/network"
-	"github.com/G-core/cli/pkg/errors"
-	"github.com/G-core/cli/pkg/human"
-	"github.com/G-core/cli/pkg/output"
+	"github.com/G-core/cli/internal/commands/fastedge"
+	"github.com/G-core/cli/internal/commands/network"
+	"github.com/G-core/cli/internal/errors"
+	"github.com/G-core/cli/internal/human"
+	"github.com/G-core/cli/internal/output"
 )
 
 func Execute() {

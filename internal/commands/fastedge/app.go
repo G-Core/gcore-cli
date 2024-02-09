@@ -11,9 +11,9 @@ import (
 	sdk "github.com/G-Core/FastEdge-client-sdk-go"
 	"github.com/spf13/cobra"
 
-	e "github.com/G-core/cli/pkg/errors"
-	"github.com/G-core/cli/pkg/output"
-	"github.com/G-core/cli/pkg/sure"
+	e "github.com/G-core/cli/internal/errors"
+	"github.com/G-core/cli/internal/output"
+	"github.com/G-core/cli/internal/sure"
 )
 
 // app-related commands

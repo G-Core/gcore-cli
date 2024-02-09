@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/G-core/cli/pkg/human"
+	"github.com/G-core/cli/internal/human"
 
 	"github.com/spf13/cobra"
 )

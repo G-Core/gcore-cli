@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/G-core/cli/pkg/terminal"
+	"github.com/G-core/cli/internal/terminal"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
 )

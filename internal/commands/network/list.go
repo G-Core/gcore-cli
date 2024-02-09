@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/G-core/cli/pkg/errors"
-	"github.com/G-core/cli/pkg/output"
+	"github.com/G-core/cli/internal/errors"
+	"github.com/G-core/cli/internal/output"
 	"github.com/spf13/cobra"
 )
 

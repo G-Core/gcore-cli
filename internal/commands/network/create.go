@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	cloud "github.com/G-Core/gcore-cloud-sdk-go"
-	"github.com/G-core/cli/pkg/errors"
+	"github.com/G-core/cli/internal/errors"
 )
 
 // ^[a-zA-Z0-9][a-zA-Z 0-9._\-]{1,61}[a-zA-Z0-9._]$

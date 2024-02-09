@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/G-core/cli/pkg/terminal"
+	"github.com/G-core/cli/internal/terminal"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
 	cloud "github.com/G-Core/gcore-cloud-sdk-go"
-	"github.com/G-core/cli/pkg/errors"
+	"github.com/G-core/cli/internal/errors"
 )
 
 func delete() *cobra.Command {

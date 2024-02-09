@@ -2,9 +2,12 @@ package output
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/G-core/cli/internal/human"
 
 	"github.com/spf13/cobra"
 )
@@ -20,7 +23,7 @@ const (
 	csvDelimiter                = ","
 )
 
-var globalFormat outputFormat
+var globalFormat = FmtHuman
 
 // implement pflag.Value interface
 func (f *outputFormat) String() string {
@@ -49,6 +52,36 @@ func FormatOption(cmd *cobra.Command) {
 
 func Format(cmd *cobra.Command) outputFormat {
 	return globalFormat
+}
+
+func IsJSON() bool {
+	return globalFormat == FmtJSON
+}
+
+func Print(data any) {
+	var (
+		body string
+		err  error
+	)
+
+	switch globalFormat {
+	case FmtJSON:
+		bytes, err := json.Marshal(data)
+		if err == nil {
+			body = string(bytes)
+		}
+	case FmtHuman:
+		body, err = human.Marshal(data, nil)
+		// TODO: Support CSV?
+	default:
+		err = fmt.Errorf("format '%s' is not supported", globalFormat)
+	}
+
+	if err != nil {
+		body, _ = human.Marshal(err, nil)
+	}
+
+	fmt.Println(body)
 }
 
 func Table(lines [][]string, format outputFormat) {

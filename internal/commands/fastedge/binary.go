@@ -10,7 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/G-core/cli/pkg/output"
+	"github.com/G-core/cli/internal/output"
 )
 
 const (

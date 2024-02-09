@@ -20,7 +20,8 @@ import (
 
 func Execute() {
 	var rootCmd = &cobra.Command{
-		Use:           "gcore",
+		// TODO: pick name from binary name
+		Use:           "gcore-cli",
 		SilenceUsage:  true,
 		SilenceErrors: true,
 	}

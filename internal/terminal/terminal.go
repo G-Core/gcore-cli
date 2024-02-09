@@ -1,3 +1,5 @@
+// Source: github.com/scaleway/scaleway-cli/internal/terminal
+
 package terminal
 
 import (

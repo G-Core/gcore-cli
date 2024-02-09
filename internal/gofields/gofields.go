@@ -1,3 +1,5 @@
+// Source: github.com/scaleway/scaleway-cli/internal/gofields
+
 package gofields
 
 import (

@@ -1,3 +1,5 @@
+// Source: github.com/scaleway/scaleway-cli/internal/human
+
 package human
 
 import (

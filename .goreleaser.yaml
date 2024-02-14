@@ -50,6 +50,8 @@ brews:
     description: "The official Gcore CLI"
     license: "Apache-2.0"
     skip_upload: auto
+    extra_install: |
+      generate_completions_from_executable(bin/"gcore-cli", "completion")
     repository:
       owner: G-Core
       name: homebrew-tap

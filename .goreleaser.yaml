@@ -38,3 +38,20 @@ release:
   github:
     owner: g-core
     name: gcore-cli
+
+brews:
+  - name: gcore-cli
+    commit_author:
+      name: goreleaserbot
+      email: goreleaserbot@gcore.com
+    commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+    folder: Formula
+    homepage: "https://github.com/G-Core/gcore-cli"
+    description: "The official Gcore CLI"
+    license: "Apache-2.0"
+    skip_upload: auto
+    repository:
+      owner: G-Core
+      name: homebrew-tap
+      # see https://goreleaser.com/errors/resource-not-accessible-by-integration
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"

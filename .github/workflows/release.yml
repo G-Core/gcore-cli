@@ -23,9 +23,10 @@ jobs:
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5
         with:
-          # Either 'goreleaser' (default) or 'goreleaser-pro'
           distribution: goreleaser
           version: latest
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # see https://goreleaser.com/errors/resource-not-accessible-by-integration
+          TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}

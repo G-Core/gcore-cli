@@ -26,3 +26,4 @@ go.work
 
 gcore
 .vscode
+dist/

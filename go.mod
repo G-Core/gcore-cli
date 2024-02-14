@@ -4,7 +4,6 @@ go 1.21.5
 
 require (
 	github.com/G-Core/FastEdge-client-sdk-go v0.0.0-20240207072129-14cabf7f59f9
-	github.com/G-Core/gcore-cloud-sdk-go v0.0.0-20240209141917-a7d433d9f35f
 	github.com/alecthomas/assert v1.0.0
 	github.com/docker/go-units v0.5.0
 	github.com/dustin/go-humanize v1.0.1

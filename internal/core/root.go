@@ -12,7 +12,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/G-core/cli/internal/commands/fastedge"
-	"github.com/G-core/cli/internal/commands/network"
 	"github.com/G-core/cli/internal/errors"
 	"github.com/G-core/cli/internal/human"
 	"github.com/G-core/cli/internal/output"
@@ -74,14 +73,7 @@ func Execute() {
 		os.Exit(1)
 	}
 
-	networkCmd, err := network.Commands(*apiUrl, authFunc)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed: %v\n", err)
-		os.Exit(1)
-	}
-
 	rootCmd.AddCommand(fastedgeCmd)
-	rootCmd.AddCommand(networkCmd)
 	err = rootCmd.Execute()
 	if err != nil {
 		cliErr, ok := err.(*errors.CliError)

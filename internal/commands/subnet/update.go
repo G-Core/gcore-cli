@@ -29,7 +29,6 @@ func update() *cobra.Command {
 		Args:    cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id := args[0]
-
 			var opts cloud.PatchSubnetSchema
 			if len(sHostRoutes) > 0 {
 				sm, err := sflags.ParseSlice(sHostRoutes)

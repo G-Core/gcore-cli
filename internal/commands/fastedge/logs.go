@@ -179,15 +179,68 @@ This command allows you filtering by edge name, client ip and time range.`,
 	}
 
 	var cmdLogEnable = &cobra.Command{
-		Use:   "enable <subcommand>",
-		Short: "Enable logging",
+		Use:   "enable <app_id>",
+		Short: "Enable app logging",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := strconv.ParseInt(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("parsing app id: %w", err)
 			}
-			fmt.Printf("Enabling %d\n", id)
+			rsp, err := client.PatchAppWithResponse(
+				context.Background(),
+				id,
+				sdk.App{Debug: newPointer(true)},
+			)
+			if err != nil {
+				return fmt.Errorf("enabling logging: %w", err)
+			}
+			if rsp.StatusCode() != http.StatusOK {
+				return fmt.Errorf("enabling logging: %s", string(rsp.Body))
+			}
+
+			rsp1, err := client.GetAppWithResponse(
+				context.Background(),
+				id,
+			)
+			if err != nil {
+				return fmt.Errorf("getting app detail: %w", err)
+			}
+			if rsp.StatusCode() != http.StatusOK {
+				return fmt.Errorf("getting app details: %s", string(rsp.Body))
+			}
+
+			if rsp1.JSON200.DebugUntil == nil {
+				return fmt.Errorf("logging not enabled")
+			}
+
+			fmt.Printf("Logging for app %d enabled until %v\n", id, *rsp1.JSON200.DebugUntil)
+			return nil
+		},
+	}
+
+	var cmdLogDisable = &cobra.Command{
+		Use:   "disable <app_id>",
+		Short: "Disable app logging",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			id, err := strconv.ParseInt(args[0], 10, 64)
+			if err != nil {
+				return fmt.Errorf("parsing app id: %w", err)
+			}
+			rsp, err := client.PatchAppWithResponse(
+				context.Background(),
+				id,
+				sdk.App{Debug: newPointer(false)},
+			)
+			if err != nil {
+				return fmt.Errorf("disabling logging: %w", err)
+			}
+			if rsp.StatusCode() != http.StatusOK {
+				return fmt.Errorf("disabling logging: %s", string(rsp.Body))
+			}
+
+			fmt.Printf("Logging for app %d disabled\n", id)
 			return nil
 		},
 	}
@@ -195,7 +248,9 @@ This command allows you filtering by edge name, client ip and time range.`,
 	appLogsFilterFlags(cmdLogsShow)
 	cmdLogs.AddCommand(
 		cmdLogsShow,
-		cmdLogEnable)
+		cmdLogEnable,
+		cmdLogDisable,
+	)
 
 	return cmdLogs
 }

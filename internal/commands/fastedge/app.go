@@ -213,13 +213,16 @@ commands.`,
 			}
 
 			fmt.Printf(
-				"Name:\t%s\nBinary:\t%d\nPlan:\t%s\nStatus:\t%s\nUrl:\t%s\n",
+				"Name:\t   %s\nBinary:\t   %d\nPlan:\t   %s\nStatus:\t   %s\nUrl:\t   %s\n",
 				*rsp.JSON200.Name,
 				*rsp.JSON200.Binary,
 				*rsp.JSON200.Plan,
 				appStatusToString(*rsp.JSON200.Status),
 				*rsp.JSON200.Url,
 			)
+			if rsp.JSON200.DebugUntil != nil {
+				fmt.Printf("Log until: %v\n", *rsp.JSON200.DebugUntil)
+			}
 			outputMap(rsp.JSON200.Env, "Env")
 			outputMap(rsp.JSON200.RspHeaders, "Response headers")
 			return nil

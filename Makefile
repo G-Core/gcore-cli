@@ -1,8 +1,8 @@
-all: gcore
+all: gcore-cli
 
-.PHONY: gcore
+.PHONY: gcore-cli
 
-build: gcore
+build: gcore-cli
 
-gcore: 
-	CGO_ENABLED=0 go build -ldflags="-extldflags=-static" -o gcore cmd/gcore-cli/main.go
+gcore-cli: 
+	CGO_ENABLED=0 go build -ldflags="-extldflags=-static" -o gcore-cli cmd/gcore-cli/main.go

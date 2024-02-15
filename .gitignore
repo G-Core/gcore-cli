@@ -24,6 +24,6 @@
 # Go workspace file
 go.work
 
-gcore
+gcore-cli
 .vscode
 dist/

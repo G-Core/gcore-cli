@@ -180,7 +180,7 @@ This command allows you filtering by edge name, client ip and time range.`,
 
 	var cmdLogEnable = &cobra.Command{
 		Use:   "enable <app_id>",
-		Short: "Enable app debug logging",
+		Short: "Enable app logging",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := strconv.ParseInt(args[0], 10, 64)
@@ -193,10 +193,10 @@ This command allows you filtering by edge name, client ip and time range.`,
 				sdk.App{Debug: newPointer(true)},
 			)
 			if err != nil {
-				return fmt.Errorf("enabling debug: %w", err)
+				return fmt.Errorf("enabling logging: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("enabling debug: %s", string(rsp.Body))
+				return fmt.Errorf("enabling logging: %s", string(rsp.Body))
 			}
 
 			rsp1, err := client.GetAppWithResponse(
@@ -211,17 +211,17 @@ This command allows you filtering by edge name, client ip and time range.`,
 			}
 
 			if rsp1.JSON200.DebugUntil == nil {
-				return fmt.Errorf("debug not enabled")
+				return fmt.Errorf("logging not enabled")
 			}
 
-			fmt.Printf("Debug for app %d enabled until %v\n", id, *rsp1.JSON200.DebugUntil)
+			fmt.Printf("Logging for app %d enabled until %v\n", id, *rsp1.JSON200.DebugUntil)
 			return nil
 		},
 	}
 
 	var cmdLogDisable = &cobra.Command{
 		Use:   "disable <app_id>",
-		Short: "Disable app debug logging",
+		Short: "Disable app logging",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := strconv.ParseInt(args[0], 10, 64)
@@ -234,13 +234,13 @@ This command allows you filtering by edge name, client ip and time range.`,
 				sdk.App{Debug: newPointer(false)},
 			)
 			if err != nil {
-				return fmt.Errorf("disabling debug: %w", err)
+				return fmt.Errorf("disabling logging: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("disabling debug: %s", string(rsp.Body))
+				return fmt.Errorf("disabling logging: %s", string(rsp.Body))
 			}
 
-			fmt.Printf("Debug for app %d disabled\n", id)
+			fmt.Printf("Logging for app %d disabled\n", id)
 			return nil
 		},
 	}

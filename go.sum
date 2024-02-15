@@ -1,5 +1,5 @@
-github.com/G-Core/FastEdge-client-sdk-go v0.0.0-20240207072129-14cabf7f59f9 h1:YUJ5Dr4oHqG7YZl/Tj4AnJ801vyp8EMVXNlZheos3TQ=
-github.com/G-Core/FastEdge-client-sdk-go v0.0.0-20240207072129-14cabf7f59f9/go.mod h1:ggyUVhy8/OCMBY4nbm7n9qDoPioROCk4vHhDJq9w7qE=
+github.com/G-Core/FastEdge-client-sdk-go v0.0.0-20240214130448-d87df1e38764 h1:7CATrk7BJpU1t4wr2avczZaX1KrwsjhArBKBaiSQN2M=
+github.com/G-Core/FastEdge-client-sdk-go v0.0.0-20240214130448-d87df1e38764/go.mod h1:ggyUVhy8/OCMBY4nbm7n9qDoPioROCk4vHhDJq9w7qE=
 github.com/RaveNoX/go-jsoncommentstrip v1.0.0/go.mod h1:78ihd09MekBnJnxpICcwzCMzGrKSKYe4AqU6PDYYpjk=
 github.com/alecthomas/assert v1.0.0 h1:3XmGh/PSuLzDbK3W2gUbRXwgW5lqPkuqvRgeQ30FI5o=
 github.com/alecthomas/assert v1.0.0/go.mod h1:va/d2JC+M7F6s+80kl/R3G7FUiW6JzUO+hPhLyJ36ZY=

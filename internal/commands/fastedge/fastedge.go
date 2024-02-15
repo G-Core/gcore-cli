@@ -46,7 +46,7 @@ func Commands(baseUrl string, authFunc func(ctx context.Context, req *http.Reque
 	cmdFastedge.PersistentFlags().BoolVar(&local, "local", false, "local testing")
 	cmdFastedge.PersistentFlags().MarkHidden("local")
 
-	cmdFastedge.AddCommand(app(), binary(), plan(), stat())
+	cmdFastedge.AddCommand(app(), binary(), plan(), stat(), logs())
 	return cmdFastedge, nil
 }
 

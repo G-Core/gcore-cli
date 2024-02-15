@@ -15,7 +15,6 @@ var client *sdk.ClientWithResponses
 
 // top-level FastEdge command
 func Commands(baseUrl string, authFunc func(ctx context.Context, req *http.Request) error) (*cobra.Command, error) {
-	var local bool
 	var cmdFastedge = &cobra.Command{
 		Use:   "fastedge <subcommand>",
 		Short: "Gcore Edge compute solution",
@@ -24,6 +23,7 @@ func Commands(baseUrl string, authFunc func(ctx context.Context, req *http.Reque
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			var err error
 			url := baseUrl
+			local, _ := cmd.Root().Flags().GetBool("local")
 			if !local {
 				url += "/fastedge"
 			}
@@ -43,8 +43,6 @@ func Commands(baseUrl string, authFunc func(ctx context.Context, req *http.Reque
 			return nil
 		},
 	}
-	cmdFastedge.PersistentFlags().BoolVar(&local, "local", false, "local testing")
-	cmdFastedge.PersistentFlags().MarkHidden("local")
 
 	cmdFastedge.AddCommand(app(), binary(), plan(), stat(), logs())
 	return cmdFastedge, nil

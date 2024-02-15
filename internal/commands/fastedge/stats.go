@@ -17,7 +17,7 @@ import (
 
 func stat() *cobra.Command {
 	var cmdStat = &cobra.Command{
-		Use:   "stat <subcommand>",
+		Use:   "stats <subcommand>",
 		Short: "Statistics",
 		Args:  cobra.MinimumNArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -56,7 +56,7 @@ func stat() *cobra.Command {
 	}
 
 	var cmdCalls = &cobra.Command{
-		Use:     "app_calls <app_id>",
+		Use:     "calls <app_id>",
 		Aliases: []string{"calls"},
 		Short:   "Show app calls statistic",
 		Long: `Show number of app calls, grouped by time slots and HTTP statuses.
@@ -169,8 +169,8 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 	statFlags(cmdCalls)
 
 	var cmdDuration = &cobra.Command{
-		Use:     "app_duration <app_id>",
-		Aliases: []string{"duration", "time", "timeing"},
+		Use:     "duration <app_id>",
+		Aliases: []string{"duration", "time", "timing"},
 		Short:   "Show app execution duration",
 		Long: `Show duration of app calls, grouped by time slots. All times are in msec
 By default it reports every hour from the beginning of current day (UTC),

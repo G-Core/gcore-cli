@@ -1,4 +1,4 @@
-module github.com/G-core/cli
+module github.com/G-core/gcore-cli
 
 go 1.21.5
 

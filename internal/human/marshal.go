@@ -13,9 +13,9 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
-	"github.com/G-core/cli/internal/gofields"
-	"github.com/G-core/cli/internal/tabwriter"
-	"github.com/G-core/cli/internal/terminal"
+	"github.com/G-core/gcore-cli/internal/gofields"
+	"github.com/G-core/gcore-cli/internal/tabwriter"
+	"github.com/G-core/gcore-cli/internal/terminal"
 	"github.com/fatih/color"
 )
 

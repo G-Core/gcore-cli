@@ -9,17 +9,17 @@ import (
 	"github.com/docker/go-units"
 	"github.com/spf13/cobra"
 
-	"github.com/G-core/cli/internal/output"
+	"github.com/G-core/gcore-cli/internal/output"
 )
 
 func plan() *cobra.Command {
 	var cmdPlan = &cobra.Command{
 		Use:   "plan <subcommand>",
 		Short: "Plan-related commands",
-		Long:  `Plan is a set of limits for the application. Different plans may imply different rates,
+		Long: `Plan is a set of limits for the application. Different plans may imply different rates,
 so chose the plan to minimise costs. However, using plan smaller than needed
 may result in excessive timeouts and out-of-memory errors.`,
-		Args:  cobra.MinimumNArgs(1),
+		Args: cobra.MinimumNArgs(1),
 	}
 
 	var cmdList = &cobra.Command{

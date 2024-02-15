@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/G-core/cli/internal/terminal"
+	"github.com/G-core/gcore-cli/internal/terminal"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
 )

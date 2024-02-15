@@ -14,7 +14,7 @@ import (
 	sdk "github.com/G-Core/FastEdge-client-sdk-go"
 	"github.com/spf13/cobra"
 
-	"github.com/G-core/cli/internal/output"
+	"github.com/G-core/gcore-cli/internal/output"
 )
 
 func appLogsFilterFlags(cmd *cobra.Command) {

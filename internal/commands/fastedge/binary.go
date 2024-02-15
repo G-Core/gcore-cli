@@ -10,7 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/G-core/cli/internal/output"
+	"github.com/G-core/gcore-cli/internal/output"
 )
 
 const (
@@ -68,9 +68,9 @@ func binary() *cobra.Command {
 		Use:     "add",
 		Aliases: []string{"upload"},
 		Short:   "Add new binary",
-		Long:    `Upload compiled Wasm binary. Specify binary filename with "--file" flag.
+		Long: `Upload compiled Wasm binary. Specify binary filename with "--file" flag.
 If this flag is omitted, file contant is read from stdin.`,
-		Args:    cobra.NoArgs,
+		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			src, err := cmd.Flags().GetString("file")
 			if err != nil {

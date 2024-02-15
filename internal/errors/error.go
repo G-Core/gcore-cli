@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/G-core/cli/internal/human"
+	"github.com/G-core/gcore-cli/internal/human"
 )
 
 // CliError is an all-in-one error structure that can be used in commands to return useful errors to the user.

@@ -11,10 +11,10 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
-	"github.com/G-core/cli/internal/commands/fastedge"
-	"github.com/G-core/cli/internal/errors"
-	"github.com/G-core/cli/internal/human"
-	"github.com/G-core/cli/internal/output"
+	"github.com/G-core/gcore-cli/internal/commands/fastedge"
+	"github.com/G-core/gcore-cli/internal/errors"
+	"github.com/G-core/gcore-cli/internal/human"
+	"github.com/G-core/gcore-cli/internal/output"
 )
 
 func Execute() {

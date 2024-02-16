@@ -47,6 +47,11 @@ func Execute() {
 	}
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		for _, safeCmd := range []string{"completion", "help"} {
+			if strings.Contains(cmd.CommandPath(), safeCmd) {
+				return nil
+			}
+		}
 		if *apiUrl == "" {
 			return &errors.CliError{
 				Message: "URL for API isn't specified",

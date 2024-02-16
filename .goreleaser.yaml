@@ -51,6 +51,7 @@ brews:
     license: "Apache-2.0"
     skip_upload: auto
     extra_install: |
+      chmod 0555, bin/"gcore-cli"
       generate_completions_from_executable(bin/"gcore-cli", "completion")
     repository:
       owner: G-Core

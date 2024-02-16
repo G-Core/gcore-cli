@@ -1,5 +1,8 @@
 # gcore-cli
 
+[![Build](https://github.com/G-Core/gcore-cli/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/G-Core/gcore-cli/actions/workflows/build.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/G-Core/gcore-cli)](https://goreportcard.com/report/github.com/G-Core/gcore-cli)
+
 `gcore-cli` is the official Gcore command line tool.
 
 ## Installation

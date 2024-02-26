@@ -8,7 +8,7 @@ require (
 	github.com/docker/go-units v0.5.0
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.14.1
-	github.com/golang-module/carbon/v2 v2.3.8
+	github.com/golang-module/carbon/v2 v2.3.9
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.18.2

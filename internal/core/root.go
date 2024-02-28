@@ -8,53 +8,80 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
 
-	"github.com/G-core/gcore-cli/internal/commands/fastedge"
-	"github.com/G-core/gcore-cli/internal/commands/network"
-	"github.com/G-core/gcore-cli/internal/commands/subnet"
+	"github.com/G-core/gcore-cli/internal/config"
 	"github.com/G-core/gcore-cli/internal/errors"
 	"github.com/G-core/gcore-cli/internal/human"
 	"github.com/G-core/gcore-cli/internal/output"
 )
 
-func Execute() {
+func init() {
+	cobra.EnableCommandSorting = false
+}
+
+func Execute(commands []*cobra.Command) {
 	var rootCmd = &cobra.Command{
 		// TODO: pick name from binary name
-		Use:           "gcore-cli",
+		Use:           os.Args[0],
 		SilenceUsage:  true,
 		SilenceErrors: true,
 	}
 
+	var meta meta
+
 	// global flags, applicable to all sub-commands
-	apiKey := rootCmd.PersistentFlags().StringP("apikey", "a", "", "API key")
-	apiUrl := rootCmd.PersistentFlags().StringP("url", "u", "https://api.gcore.com", "API URL")
-	rootCmd.PersistentFlags().BoolP("force", "f", false, `Assume answer "yes" to all "are you sure?" questions`)
-	rootCmd.PersistentFlags().IntP("project", "", 0, "Cloud project ID")
-	rootCmd.PersistentFlags().IntP("region", "", 0, "Cloud region ID")
-	rootCmd.PersistentFlags().BoolP("wait", "", false, "Wait for command result")
+	rootCmd.PersistentFlags().StringVarP(&meta.flagConfig, "config", "c", "", "The path to the config file")
+	rootCmd.PersistentFlags().BoolVarP(&meta.flagForce, "force", "f", false, `Assume answer "yes" to all "are you sure?" questions`)
+	rootCmd.PersistentFlags().StringVarP(&meta.flagProfile, "profile", "p", "", "The config profile to use")
+	rootCmd.PersistentFlags().BoolVarP(&meta.flagWait, "wait", "w", false, "Wait for command result")
+
 	output.FormatOption(rootCmd)
 	rootCmd.ParseFlags(os.Args[1:])
 
-	v := viper.New()
-	v.SetEnvPrefix("gcore")
-	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	v.AutomaticEnv()
-	bindFlags(rootCmd, v)
+	meta.cfg = GetConfig()
+	meta.authFunc = func(ctx context.Context, req *http.Request) error {
+		profile, err := GetClientProfile(ctx)
+		if err != nil {
+			return err
+		}
 
-	authFunc := func(ctx context.Context, req *http.Request) error {
-		req.Header.Set("Authorization", "APIKey "+*apiKey)
+		if profile.ApiKey == nil || *profile.ApiKey == "" {
+			return &errors.CliError{
+				Message: "subcommand requires authorization",
+				Hint:    "See gcore-cli init, gcore-cli config",
+			}
+		}
+
+		req.Header.Set("Authorization", "APIKey "+*profile.ApiKey)
 		return nil
 	}
 
+	meta.ctx = injectMeta(context.Background(), meta)
+	rootCmd.SetContext(meta.ctx)
+	rootCmd.AddGroup(&cobra.Group{
+		ID:    "fastedge",
+		Title: "FastEdge commands",
+	}, &cobra.Group{
+		ID:    "cloud",
+		Title: "Cloud commands",
+	}, &cobra.Group{
+		ID:    "configuration",
+		Title: "Configuration commands",
+	})
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
-		for _, safeCmd := range []string{"completion", "help"} {
+		cmd.Groups()
+		for _, safeCmd := range []string{"init", "config", "completion", "help"} {
 			if strings.Contains(cmd.CommandPath(), safeCmd) {
 				return nil
 			}
 		}
-		if *apiUrl == "" {
+
+		profile, err := GetClientProfile(cmd.Context())
+		if err != nil {
+			return err
+		}
+
+		if profile.ApiUrl == nil && *profile.ApiUrl == "" {
 			return &errors.CliError{
 				Message: "URL for API isn't specified",
 				Hint:    "You can specify it by -u flag or GCORE_URL env variable",
@@ -62,40 +89,14 @@ func Execute() {
 			}
 		}
 
-		if *apiKey == "" {
-			return &errors.CliError{
-				Message: "API key must be specified",
-				Hint: "You can specify it with -a flag or GCORE_APIKEY env variable.\n" +
-					"To get an APIKEY visit https://accounts.gcore.com/profile/api-tokens",
-				Code: 1,
-			}
-		}
-
 		return nil
 	}
 
-	fastedgeCmd, err := fastedge.Commands(*apiUrl, authFunc)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed: %v\n", err)
-		os.Exit(1)
+	for _, command := range commands {
+		rootCmd.AddCommand(command)
 	}
 
-	networkCmd, err := network.Commands(*apiUrl, authFunc)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed: %v\n", err)
-		os.Exit(1)
-	}
-
-	subnetCmd, err := subnet.Commands(*apiUrl, authFunc)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed: %v\n", err)
-		os.Exit(1)
-	}
-
-	rootCmd.AddCommand(fastedgeCmd)
-	rootCmd.AddCommand(networkCmd)
-	rootCmd.AddCommand(subnetCmd)
-	err = rootCmd.Execute()
+	err := rootCmd.Execute()
 	if err != nil {
 		cliErr, ok := err.(*errors.CliError)
 		if !ok {
@@ -109,12 +110,25 @@ func Execute() {
 	}
 }
 
-func bindFlags(cmd *cobra.Command, v *viper.Viper) {
-	cmd.PersistentFlags().VisitAll(func(f *pflag.Flag) {
-		// Apply the viper config value to the flag when the flag is not set and viper has a value
-		if !f.Changed && v.IsSet(f.Name) {
-			val := v.Get(f.Name)
-			cmd.Flags().Set(f.Name, fmt.Sprintf("%v", val))
+// GetConfig tries to load config from $HOME dir.
+// If config doesn't exist - returns default config.
+func GetConfig() *config.Config {
+	var (
+		err error
+		cfg config.Config
+	)
+
+	path := os.Getenv("GCORE_CONFIG")
+	if len(path) == 0 {
+		path, err = config.GetConfigPath()
+		if err != nil {
+			return config.NewDefault()
 		}
-	})
+	}
+
+	if err := cfg.Load(path); err != nil {
+		return config.NewDefault()
+	}
+
+	return &cfg
 }

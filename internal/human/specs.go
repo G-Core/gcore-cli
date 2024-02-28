@@ -3,6 +3,7 @@
 package human
 
 import (
+	"github.com/iancoleman/strcase"
 	"strings"
 )
 
@@ -39,7 +40,7 @@ func (s *MarshalFieldOpt) getLabel() string {
 
 	label := s.FieldName
 	label = strings.ReplaceAll(label, ".", " ")
-	//label = strcase.ToBashArg(label)
+	label = strcase.ToKebab(label)
 	label = strings.ReplaceAll(label, "-", " ")
 	label = strings.ToUpper(label)
 	return label

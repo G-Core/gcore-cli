@@ -66,7 +66,7 @@ func Print(data any) {
 
 	switch globalFormat {
 	case FmtJSON:
-		bytes, err := json.Marshal(data)
+		bytes, err := json.MarshalIndent(data, "", "\t")
 		if err == nil {
 			body = string(bytes)
 		}

@@ -1,15 +1,14 @@
 package subnet
 
 import (
-	"context"
 	"fmt"
-	"net/http"
 	"regexp"
 	"strconv"
 
 	"github.com/spf13/cobra"
 
 	cloud "github.com/G-Core/gcore-cloud-sdk-go"
+	"github.com/G-core/gcore-cli/internal/core"
 	"github.com/G-core/gcore-cli/internal/errors"
 	"github.com/G-core/gcore-cli/internal/human"
 )
@@ -111,7 +110,7 @@ func init() {
 }
 
 // top-level subnet command
-func Commands(baseUrl string, authFunc func(ctx context.Context, req *http.Request) error) (*cobra.Command, error) {
+func Commands() *cobra.Command {
 	// subnetCmd represents the subnet command
 	var subnetCmd = &cobra.Command{
 		Use:   "subnet",
@@ -120,11 +119,21 @@ func Commands(baseUrl string, authFunc func(ctx context.Context, req *http.Reque
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
 		},
-		Args: cobra.NoArgs,
+		GroupID: "cloud",
+		Args:    cobra.NoArgs,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) (err error) {
-			local, _ := cmd.Flags().GetBool("local")
-			if !local {
-				baseUrl += "/cloud"
+			var (
+				ctx = cmd.Context()
+			)
+			profile, err := core.GetClientProfile(ctx)
+			if err != nil {
+				return err
+			}
+			baseUrl := *profile.ApiUrl
+			authFunc := core.ExtractAuthFunc(ctx)
+
+			if profile.Local != nil && !*profile.Local {
+				baseUrl += "/fastedge"
 			}
 
 			client, err = cloud.NewClientWithResponses(baseUrl, cloud.WithRequestEditorFn(authFunc))
@@ -159,5 +168,5 @@ func Commands(baseUrl string, authFunc func(ctx context.Context, req *http.Reque
 	}
 
 	subnetCmd.AddCommand(create(), show(), list(), update(), deleteCmd())
-	return subnetCmd, nil
+	return subnetCmd
 }

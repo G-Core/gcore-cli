@@ -1,15 +1,14 @@
 package network
 
 import (
-	"context"
 	"fmt"
-	"net/http"
 	"regexp"
 	"strconv"
 
 	"github.com/spf13/cobra"
 
 	cloud "github.com/G-Core/gcore-cloud-sdk-go"
+	"github.com/G-core/gcore-cli/internal/core"
 	"github.com/G-core/gcore-cli/internal/human"
 )
 
@@ -96,20 +95,30 @@ func init() {
 }
 
 // top-level cloud network command
-func Commands(baseUrl string, authFunc func(ctx context.Context, req *http.Request) error) (*cobra.Command, error) {
+func Commands() *cobra.Command {
 	// networkCmd represents the network command
 	var networkCmd = &cobra.Command{
-		Use:   "network",
-		Short: "Cloud network management commands",
-		Long:  ``, // TODO:
+		Use:     "network",
+		Short:   "Cloud network management commands",
+		Long:    ``, // TODO:
+		GroupID: "cloud",
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
 		},
 		Args: cobra.NoArgs,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) (err error) {
-			local, _ := cmd.Flags().GetBool("local")
-			if !local {
-				baseUrl += "/cloud"
+			var (
+				ctx = cmd.Context()
+			)
+			profile, err := core.GetClientProfile(ctx)
+			if err != nil {
+				return err
+			}
+			baseUrl := *profile.ApiUrl
+			authFunc := core.ExtractAuthFunc(ctx)
+
+			if profile.Local != nil && !*profile.Local {
+				baseUrl += "/fastedge"
 			}
 
 			client, err = cloud.NewClientWithResponses(baseUrl, cloud.WithRequestEditorFn(authFunc))
@@ -144,5 +153,5 @@ func Commands(baseUrl string, authFunc func(ctx context.Context, req *http.Reque
 	}
 
 	networkCmd.AddCommand(create(), show(), list(), rename(), delete())
-	return networkCmd, nil
+	return networkCmd
 }

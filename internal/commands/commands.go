@@ -7,6 +7,8 @@ import (
 	"github.com/G-core/gcore-cli/internal/commands/fastedge"
 	initCmd "github.com/G-core/gcore-cli/internal/commands/init"
 	"github.com/G-core/gcore-cli/internal/commands/network"
+	"github.com/G-core/gcore-cli/internal/commands/project"
+	"github.com/G-core/gcore-cli/internal/commands/region"
 	"github.com/G-core/gcore-cli/internal/commands/subnet"
 )
 
@@ -15,6 +17,8 @@ func Commands() []*cobra.Command {
 		fastedge.Commands(),
 		network.Commands(),
 		subnet.Commands(),
+		project.Commands(),
+		region.Commands(),
 		initCmd.Commands(),
 		config.Commands(),
 	}

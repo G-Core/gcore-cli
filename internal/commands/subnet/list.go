@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	cloud "github.com/G-Core/gcore-cloud-sdk-go"
+	"github.com/G-core/gcore-cli/internal/core"
 	"github.com/G-core/gcore-cli/internal/errors"
 	"github.com/G-core/gcore-cli/internal/output"
 )
@@ -22,6 +23,20 @@ func list() *cobra.Command {
 		Short:   "Show list of client's subnets",
 		Long:    ``,           // TODO: Description with examples
 		Args:    cobra.NoArgs, // TODO: search by name, id etc
+		PreRunE: func(cmd *cobra.Command, args []string) (err error) {
+			ctx := cmd.Context()
+			projectID, err = core.ExtractCloudProject(ctx)
+			if err != nil {
+				return err
+			}
+
+			regionID, err = core.ExtractCloudRegion(ctx)
+			if err != nil {
+				return err
+			}
+
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resp, err := client.GetSubnetWithResponse(cmd.Context(), projectID, regionID, nil)
 			if err != nil {

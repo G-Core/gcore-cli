@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/G-core/gcore-cli/internal/core"
 	"github.com/G-core/gcore-cli/internal/errors"
 	"github.com/G-core/gcore-cli/internal/output"
 )
@@ -34,6 +35,20 @@ func show() *cobra.Command {
 		Short: "Show information about specific network",
 		Long:  ``, // TODO: Description with examples
 		Args:  cobra.ExactArgs(1),
+		PreRunE: func(cmd *cobra.Command, args []string) (err error) {
+			ctx := cmd.Context()
+			projectID, err = core.ExtractCloudProject(ctx)
+			if err != nil {
+				return err
+			}
+
+			regionID, err = core.ExtractCloudRegion(ctx)
+			if err != nil {
+				return err
+			}
+
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			var networkID = args[0]
 

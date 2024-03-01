@@ -2,6 +2,7 @@ package subnet
 
 import (
 	"fmt"
+	"github.com/G-core/gcore-cli/internal/core"
 	"net/http"
 	"time"
 
@@ -31,6 +32,20 @@ func create() *cobra.Command {
 		Short:   "Create a subnet for specific network",
 		Long:    ``,
 		Args:    cobra.MinimumNArgs(1),
+		PreRunE: func(cmd *cobra.Command, args []string) (err error) {
+			ctx := cmd.Context()
+			projectID, err = core.ExtractCloudProject(ctx)
+			if err != nil {
+				return err
+			}
+
+			regionID, err = core.ExtractCloudRegion(ctx)
+			if err != nil {
+				return err
+			}
+
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var opts cloud.CreateSubnetSchema
 

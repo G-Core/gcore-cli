@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -16,10 +17,12 @@ type meta struct {
 	ctx context.Context
 
 	// Global flags
-	flagConfig  string
-	flagProfile string
-	flagForce   bool
-	flagWait    bool
+	flagConfig       string
+	flagProfile      string
+	flagForce        bool
+	flagWait         bool
+	flagCloudProject int
+	flagCloudRegion  int
 
 	// Auth function
 	authFunc func(ctx context.Context, req *http.Request) error
@@ -87,4 +90,38 @@ func GetClientProfile(ctx context.Context) (*config.Profile, error) {
 
 func ExtractAuthFunc(ctx context.Context) func(ctx context.Context, req *http.Request) error {
 	return extractMeta(ctx).authFunc
+}
+
+func ExtractCloudProject(ctx context.Context) (int, error) {
+	if extractMeta(ctx).flagCloudProject != 0 {
+		return extractMeta(ctx).flagCloudProject, nil
+	}
+
+	profile, err := GetClientProfile(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	if profile.CloudProject != nil {
+		return *profile.CloudProject, nil
+	}
+
+	return 0, fmt.Errorf("cloud project ID wasn't specified")
+}
+
+func ExtractCloudRegion(ctx context.Context) (int, error) {
+	if extractMeta(ctx).flagCloudRegion != 0 {
+		return extractMeta(ctx).flagCloudRegion, nil
+	}
+
+	profile, err := GetClientProfile(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	if profile.CloudRegion != nil {
+		return *profile.CloudRegion, nil
+	}
+
+	return 0, fmt.Errorf("cloud region ID wasn't specified")
 }

@@ -3,7 +3,6 @@ package network
 import (
 	"fmt"
 	"regexp"
-	"strconv"
 
 	"github.com/spf13/cobra"
 
@@ -110,6 +109,7 @@ func Commands() *cobra.Command {
 			var (
 				ctx = cmd.Context()
 			)
+
 			profile, err := core.GetClientProfile(ctx)
 			if err != nil {
 				return err
@@ -124,26 +124,6 @@ func Commands() *cobra.Command {
 			client, err = cloud.NewClientWithResponses(baseUrl, cloud.WithRequestEditorFn(authFunc))
 			if err != nil {
 				return fmt.Errorf("cannot init SDK: %w", err)
-			}
-
-			fProject := cmd.Flag("project")
-			if fProject == nil {
-				return fmt.Errorf("can't find --project flag")
-			}
-
-			projectID, err = strconv.Atoi(fProject.Value.String())
-			if err != nil {
-				return fmt.Errorf("--project flag value must to be int: %w", err)
-			}
-
-			fRegion := cmd.Flag("region")
-			if fRegion == nil {
-				return fmt.Errorf("can't find --region flag")
-			}
-
-			regionID, err = strconv.Atoi(fRegion.Value.String())
-			if err != nil {
-				return fmt.Errorf("--region flag value must to be int: %w", err)
 			}
 
 			waitForResult = cmd.Flag("wait").Value.String() == "true"

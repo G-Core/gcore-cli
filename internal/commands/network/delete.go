@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 
 	cloud "github.com/G-Core/gcore-cloud-sdk-go"
+	"github.com/G-core/gcore-cli/internal/core"
 	"github.com/G-core/gcore-cli/internal/errors"
 	"github.com/G-core/gcore-cli/internal/terminal"
 )
@@ -21,6 +22,20 @@ func delete() *cobra.Command {
 		Short:   "Delete a specific network",
 		Long:    ``,
 		Args:    cobra.MinimumNArgs(1),
+		PreRunE: func(cmd *cobra.Command, args []string) (err error) {
+			ctx := cmd.Context()
+			projectID, err = core.ExtractCloudProject(ctx)
+			if err != nil {
+				return err
+			}
+
+			regionID, err = core.ExtractCloudRegion(ctx)
+			if err != nil {
+				return err
+			}
+
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// TODO: Autogenerate names for networks as option
 			networkId := args[0]

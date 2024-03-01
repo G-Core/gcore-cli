@@ -34,6 +34,8 @@ func Execute(commands []*cobra.Command) {
 	rootCmd.PersistentFlags().BoolVarP(&meta.flagForce, "force", "f", false, `Assume answer "yes" to all "are you sure?" questions`)
 	rootCmd.PersistentFlags().StringVarP(&meta.flagProfile, "profile", "p", "", "The config profile to use")
 	rootCmd.PersistentFlags().BoolVarP(&meta.flagWait, "wait", "w", false, "Wait for command result")
+	rootCmd.PersistentFlags().IntVarP(&meta.flagCloudProject, "cloud-project", "", 0, "Cloud project ID")
+	rootCmd.PersistentFlags().IntVarP(&meta.flagCloudRegion, "cloud-region", "", 0, "Cloud region ID")
 
 	output.FormatOption(rootCmd)
 	rootCmd.ParseFlags(os.Args[1:])

@@ -32,7 +32,7 @@ func Commands() *cobra.Command {
 			url := *profile.ApiUrl
 			authFunc := core.ExtractAuthFunc(ctx)
 
-			if profile.Local != nil && !*profile.Local {
+			if !profile.IsLocal() {
 				url += "/fastedge"
 			}
 

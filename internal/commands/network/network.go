@@ -117,7 +117,7 @@ func Commands() *cobra.Command {
 			baseUrl := *profile.ApiUrl
 			authFunc := core.ExtractAuthFunc(ctx)
 
-			if profile.Local != nil && !*profile.Local {
+			if !profile.IsLocal() {
 				baseUrl += "/fastedge"
 			}
 

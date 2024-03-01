@@ -81,7 +81,7 @@ func Commands() *cobra.Command {
 			}
 
 			baseUrl := *profile.ApiUrl
-			if profile.Local != nil && !*profile.Local {
+			if !profile.IsLocal() {
 				baseUrl += "/cloud"
 			}
 

@@ -20,6 +20,7 @@ func set() *cobra.Command {
 		Short: "Set property for active profile",
 		Long: "This commands overwrites the configuration file parameters with user input.\n" +
 			"The only allowed arguments are: api-url, api-key, cloud-project, cloud-region",
+		ValidArgs: []string{"api-url", "api-key", "cloud-project", "cloud-region", "local"},
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				cmd.Help()
@@ -105,6 +106,7 @@ func set() *cobra.Command {
 			}
 
 			profile, _ = cfg.GetProfile(profileName)
+			profile.ApiKey = pointer.To(secureKey(profile.ApiKey))
 			output.Print(profile)
 
 			return nil

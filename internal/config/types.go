@@ -33,6 +33,14 @@ type Profile struct {
 	CloudRegion  *int    `yaml:"cloud-region,omitempty"  json:"cloud-region,omitempty"`
 }
 
+func (p *Profile) IsLocal() bool {
+	if p.Local == nil {
+		return false
+	}
+
+	return *p.Local
+}
+
 type Config struct {
 	Profile       `yaml:",inline"`
 	ActiveProfile string              `yaml:"profile"            json:"profile,omitempty"`

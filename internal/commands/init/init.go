@@ -1,12 +1,17 @@
 package init
 
 import (
+	"context"
 	"fmt"
+	"net/http"
+
+	"github.com/spf13/cobra"
+
+	cloud "github.com/G-Core/gcore-cloud-sdk-go"
 	"github.com/G-core/gcore-cli/internal/config"
 	"github.com/G-core/gcore-cli/internal/core"
 	"github.com/G-core/gcore-cli/internal/errors"
 	"github.com/G-core/gcore-cli/internal/sure"
-	"github.com/spf13/cobra"
 )
 
 func Commands() *cobra.Command {
@@ -44,12 +49,22 @@ Default path for configuration file is based on the following priority order:
 				return errors.ErrAborted
 			}
 
-			apikey, _ := cmd.PersistentFlags().GetString("apikey")
-			if apikey == "" {
-				fmt.Printf("Please, enter API key: ")
-				fmt.Scanf("%s", &apikey)
+			profile.ApiKey = askForApiKey(cmd)
+			client, err := makeClient(profileName, cfg)
+			if err != nil {
+				return err
 			}
-			profile.ApiKey = &apikey
+
+			profile.CloudProject, err = askToChooseProject(ctx, client)
+			if err != nil {
+				return err
+			}
+
+			profile.CloudRegion, err = askToChooseRegion(ctx, client)
+			if err != nil {
+				return err
+			}
+
 			path, err := core.ExtractConfigPath(ctx)
 			if err != nil {
 				return err
@@ -62,4 +77,120 @@ Default path for configuration file is based on the following priority order:
 	cmd.PersistentFlags().String("apikey", "", "GCore API key")
 
 	return cmd
+}
+
+func makeClient(profileName string, cfg *config.Config) (*cloud.ClientWithResponses, error) {
+	profile, err := cfg.GetProfile(profileName)
+	if err != nil {
+		return nil, err
+	}
+
+	var baseUrl = *profile.ApiUrl
+	if !profile.IsLocal() {
+		baseUrl += "/cloud"
+	}
+
+	client, err := cloud.NewClientWithResponses(baseUrl, cloud.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
+		req.Header.Set("Authorization", "APIKey "+*profile.ApiKey)
+
+		return nil
+	}))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
+}
+
+func askForApiKey(cmd *cobra.Command) *string {
+	apikey, _ := cmd.PersistentFlags().GetString("apikey")
+	if apikey == "" {
+		fmt.Printf("Please, enter API key: ")
+		fmt.Scanf("%s", &apikey)
+	}
+
+	return &apikey
+}
+
+func askToChooseProject(ctx context.Context, client *cloud.ClientWithResponses) (*int, error) {
+	resp, err := client.GetProjectListWithResponse(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode() != http.StatusOK {
+		return nil, errors.ParseCloudErr(resp.Body)
+	}
+
+	if resp.JSON200 == nil {
+		return nil, &errors.CliError{
+			Err:  fmt.Errorf("404 not found"),
+			Hint: fmt.Sprintf("Check profile '%s' configuration: api-url and local", core.ExtractProfile(ctx)),
+		}
+	}
+
+	if len(resp.JSON200.Results) == 1 {
+		fmt.Printf("Cloud project: %d (%s)\n", resp.JSON200.Results[0].Id, resp.JSON200.Results[0].Name)
+
+		return &resp.JSON200.Results[0].Id, nil
+	}
+
+	var defProject = resp.JSON200.Results[0]
+	fmt.Printf("Please, choose default project for Cloud [%d (%s)] \n", 0, defProject.Name)
+	for idx, project := range resp.JSON200.Results {
+		fmt.Printf("%d - %s\n", idx, project.Name)
+	}
+	var idx = 0
+	for {
+		fmt.Scanf("%d", &idx)
+		if idx < len(resp.JSON200.Results)-1 &&
+			idx >= 0 {
+			break
+		}
+	}
+	fmt.Printf("Cloud project: %d (%s)\n", resp.JSON200.Results[idx].Id, resp.JSON200.Results[idx].Name)
+
+	return &resp.JSON200.Results[idx].Id, nil
+}
+
+func askToChooseRegion(ctx context.Context, client *cloud.ClientWithResponses) (*int, error) {
+	resp, err := client.GetRegionWithResponse(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode() != http.StatusOK {
+		return nil, errors.ParseCloudErr(resp.Body)
+	}
+
+	if resp.JSON200 == nil {
+		return nil, &errors.CliError{
+			Err:  fmt.Errorf("404 not found"),
+			Hint: fmt.Sprintf("Check profile '%s' configuration: api-url and local", core.ExtractProfile(ctx)),
+		}
+	}
+
+	if len(resp.JSON200.Results) == 1 {
+		fmt.Printf("Cloud region: %d (%s)\n", resp.JSON200.Results[0].Id, resp.JSON200.Results[0].DisplayName)
+
+		return &resp.JSON200.Results[0].Id, nil
+	}
+
+	var defProject = resp.JSON200.Results[0]
+	fmt.Printf("Please, choose default region for Cloud [%d (%s)] \n", 0, defProject.DisplayName)
+	for idx, project := range resp.JSON200.Results {
+		fmt.Printf("%d - %s\n", idx, project.DisplayName)
+	}
+	var idx = 0
+	for {
+		fmt.Scanf("%d", &idx)
+		if idx < len(resp.JSON200.Results)-1 &&
+			idx >= 0 {
+			break
+		}
+	}
+	fmt.Printf("Cloud region: %d (%s)\n", resp.JSON200.Results[idx].Id, resp.JSON200.Results[idx].DisplayName)
+
+	return &resp.JSON200.Results[idx].Id, nil
 }

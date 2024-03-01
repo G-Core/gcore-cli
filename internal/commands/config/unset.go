@@ -13,6 +13,7 @@ func unset() *cobra.Command {
 		Short: "Unset a line from the config file",
 		Long: "Unset a line from the config file.\n" +
 			"The only allowed arguments are: api-url, api-key, cloud-project, cloud-region",
+		ValidArgs: []string{"api-url", "api-key", "cloud-project", "cloud-region", "local"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				cmd.Help()

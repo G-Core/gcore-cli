@@ -62,8 +62,9 @@ var client *cloud.ClientWithResponses
 
 func Commands() *cobra.Command {
 	var cmd = &cobra.Command{
-		Use:   "project",
-		Short: "Commands to manage Cloud projects",
+		Use:     "project",
+		Short:   "Commands to manage Cloud projects",
+		GroupID: "cloud",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 			profile, err := core.GetClientProfile(ctx)
@@ -72,7 +73,7 @@ func Commands() *cobra.Command {
 			}
 
 			baseUrl := *profile.ApiUrl
-			if profile.Local != nil && !*profile.Local {
+			if !profile.IsLocal() {
 				baseUrl += "/cloud"
 			}
 

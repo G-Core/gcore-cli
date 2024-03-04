@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/AlekSi/pointer"
 	"github.com/spf13/cobra"
 
 	"github.com/G-core/gcore-cli/internal/config"
@@ -86,10 +85,7 @@ func listProfiles() *cobra.Command {
 			ctx := cmd.Context()
 			cfg := core.ExtractConfig(ctx)
 
-			profiles := append([]profileView{}, profileView{
-				Name:    config.DefaultProfile,
-				Profile: cfg.Profile,
-			})
+			profiles := append([]profileView{}, toProfileView(config.DefaultProfile, &cfg.Profile))
 
 			var names []string
 			for name, _ := range cfg.Profiles {
@@ -98,16 +94,9 @@ func listProfiles() *cobra.Command {
 			slices.Sort(names)
 
 			for _, name := range names {
-				pv := profileView{
-					Name:    name,
-					Profile: *cfg.Profiles[name],
-				}
+				pv := toProfileView(name, cfg.Profiles[name])
 
 				profiles = append(profiles, pv)
-			}
-
-			for i, profile := range profiles {
-				profiles[i].ApiKey = pointer.To(secureKey(profile.ApiKey))
 			}
 
 			output.Print(profiles)

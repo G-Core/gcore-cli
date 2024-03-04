@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/AlekSi/pointer"
@@ -12,8 +13,39 @@ import (
 )
 
 type profileView struct {
-	Name string
-	config.Profile
+	Name         string
+	ApiUrl       *string
+	ApiKey       *string
+	CloudProject *int
+	CloudRegion  string
+}
+
+func toProfileView(name string, profile *config.Profile) profileView {
+	var pv = profileView{
+		Name: name,
+	}
+
+	if profile.ApiUrl != nil {
+		pv.ApiUrl = profile.ApiUrl
+	}
+
+	if profile.ApiKey != nil {
+		pv.ApiKey = pointer.To(secureKey(profile.ApiKey))
+	}
+
+	if profile.CloudProject != nil {
+		pv.CloudProject = profile.CloudProject
+	}
+
+	if profile.CloudRegion != nil {
+		if region, exist := core.Regions[*profile.CloudRegion]; exist {
+			pv.CloudRegion = fmt.Sprintf("%d (%s)", *profile.CloudRegion, region)
+		} else {
+			pv.CloudRegion = fmt.Sprintf("%d", *profile.CloudRegion)
+		}
+	}
+
+	return pv
 }
 
 func info() *cobra.Command {
@@ -28,11 +60,7 @@ func info() *cobra.Command {
 				return err
 			}
 
-			profile.ApiKey = pointer.To(secureKey(profile.ApiKey))
-			output.Print(profileView{
-				Name:    core.ExtractProfile(ctx),
-				Profile: *profile,
-			})
+			output.Print(toProfileView(core.ExtractProfile(ctx), profile))
 
 			return nil
 		},

@@ -20,7 +20,7 @@ func set() *cobra.Command {
 		Short: "Set property for active profile",
 		Long: "This commands overwrites the configuration file parameters with user input.\n" +
 			"The only allowed arguments are: api-url, api-key, cloud-project, cloud-region",
-		ValidArgs: []string{"api-url", "api-key", "cloud-project", "cloud-region", "local"},
+		ValidArgs: []string{"api-url", "api-key", "cloud-project", "cloud-region"},
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				cmd.Help()
@@ -46,8 +46,6 @@ func set() *cobra.Command {
 						return fmt.Errorf("wrong value for '%s': %w", name, err)
 					}
 					m[name] = &i
-				case "local":
-					m[name] = pointer.To(strings.ToLower(value) == "true")
 				}
 			}
 
@@ -65,8 +63,6 @@ func set() *cobra.Command {
 					p.CloudProject = value.(*int)
 				case "cloud-region":
 					p.CloudRegion = value.(*int)
-				case "local":
-					p.Local = value.(*bool)
 				}
 			}
 

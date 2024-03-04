@@ -2,13 +2,13 @@ package subnet
 
 import (
 	"fmt"
-	"github.com/G-core/gcore-cli/internal/core"
 	"net/http"
 	"time"
 
 	"github.com/spf13/cobra"
 
 	cloud "github.com/G-Core/gcore-cloud-sdk-go"
+	"github.com/G-core/gcore-cli/internal/core"
 	"github.com/G-core/gcore-cli/internal/errors"
 	"github.com/G-core/gcore-cli/internal/sflags"
 )

@@ -2,8 +2,9 @@ package subnet
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"regexp"
+
+	"github.com/spf13/cobra"
 
 	cloud "github.com/G-Core/gcore-cloud-sdk-go"
 	"github.com/G-core/gcore-cli/internal/core"

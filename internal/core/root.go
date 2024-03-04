@@ -71,7 +71,6 @@ func Execute(commands []*cobra.Command) {
 		Title: "Configuration commands",
 	})
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
-		cmd.Groups()
 		for _, safeCmd := range []string{"init", "config", "completion", "help"} {
 			if strings.Contains(cmd.CommandPath(), safeCmd) {
 				return nil

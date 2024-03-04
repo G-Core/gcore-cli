@@ -2,13 +2,11 @@ package config
 
 import (
 	"fmt"
+	"github.com/AlekSi/pointer"
+	"gopkg.in/yaml.v3"
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
-
-	"github.com/AlekSi/pointer"
-	"gopkg.in/yaml.v3"
 )
 
 const (
@@ -18,7 +16,6 @@ const (
 
 const (
 	EnvConfigPath          = "GCORE_CONFIG"
-	EnvProfileLocal        = "GCORE_LOCAL"
 	EnvProfileURL          = "GCORE_API_URL"
 	EnvProfileAPIKey       = "GCORE_API_KEY"
 	EnvProfileCloudProject = "GCORE_CLOUD_PROJECT"
@@ -26,7 +23,6 @@ const (
 )
 
 type Profile struct {
-	Local        *bool   `yaml:"local,omitempty"         json:"local,omitempty"`
 	ApiUrl       *string `yaml:"api-url,omitempty"       json:"api-url,omitempty"`
 	ApiKey       *string `yaml:"api-key,omitempty"       json:"api-key,omitempty"`
 	CloudProject *int    `yaml:"cloud-project,omitempty" json:"cloud-project,omitempty"`
@@ -34,11 +30,15 @@ type Profile struct {
 }
 
 func (p *Profile) IsLocal() bool {
-	if p.Local == nil {
+	if p.ApiUrl == nil {
 		return false
 	}
 
-	return *p.Local
+	if *p.ApiUrl == DefaultAPI {
+		return false
+	}
+
+	return true
 }
 
 type Config struct {
@@ -51,7 +51,6 @@ func NewDefault() *Config {
 	return &Config{
 		ActiveProfile: DefaultProfile,
 		Profile: Profile{
-			Local:  pointer.To(false),
 			ApiUrl: pointer.To(DefaultAPI),
 		},
 	}
@@ -128,10 +127,6 @@ func (c *Config) SetProfile(name string, profile *Profile) {
 func GetEnvProfile() *Profile {
 	var profile Profile
 
-	if local := os.Getenv(EnvProfileLocal); strings.ToLower(local) == "true" {
-		profile.Local = pointer.To(true)
-	}
-
 	if url := os.Getenv(EnvProfileURL); url != "" {
 		profile.ApiUrl = &url
 	}
@@ -155,7 +150,6 @@ func GetEnvProfile() *Profile {
 
 func MergeProfiles(original *Profile, profiles ...*Profile) *Profile {
 	var result = &Profile{
-		Local:        original.Local,
 		ApiKey:       original.ApiKey,
 		ApiUrl:       original.ApiUrl,
 		CloudRegion:  original.CloudRegion,
@@ -163,10 +157,6 @@ func MergeProfiles(original *Profile, profiles ...*Profile) *Profile {
 	}
 
 	for _, profile := range profiles {
-		if profile.Local != nil {
-			result.Local = pointer.To(*profile.Local)
-		}
-
 		if profile.ApiKey != nil {
 			result.ApiKey = pointer.To(*profile.ApiKey)
 		}

@@ -37,7 +37,7 @@ func get() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:       "get <property>",
 		Short:     "Get property value from the config file",
-		ValidArgs: []string{"api-url", "api-key", "cloud-project", "cloud-region", "local"},
+		ValidArgs: []string{"api-url", "api-key", "cloud-project", "cloud-region"},
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				cmd.Help()

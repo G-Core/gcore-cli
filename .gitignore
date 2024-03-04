@@ -8,10 +8,6 @@
 *.so
 *.dylib
 
-# JetBrains
-.idea/
-
-
 # Test binary, built with `go test -c`
 *.test
 
@@ -24,6 +20,14 @@
 # Go workspace file
 go.work
 
-gcore-cli
+# Editor and IDE paraphernalia
+.idea
 .vscode
+*.swp
+*.swo
+*~
+
+# Project
+bin/
 dist/
+gcore-cli

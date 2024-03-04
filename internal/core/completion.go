@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	cloud "github.com/G-Core/gcore-cloud-sdk-go"
 	"github.com/G-core/gcore-cli/internal/config"
 )
 
@@ -26,15 +27,33 @@ func ProfileCompletion(cmd *cobra.Command, args []string, toComplete string) ([]
 }
 
 func RegionCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	var completions = make([]string, len(Regions))
+	var completions []string
+
+	ctx := cmd.Context()
+
+	client, err := CloudClient(ctx)
+	if err != nil {
+		return completions, cobra.ShellCompDirectiveKeepOrder | cobra.ShellCompDirectiveDefault
+	}
+
+	resp, err := client.GetRegionWithResponse(ctx, nil)
+	if err != nil || resp.JSON200 == nil {
+		return completions, cobra.ShellCompDirectiveKeepOrder | cobra.ShellCompDirectiveDefault
+	}
+
+	var rm = make(map[int]string)
 	var ids []int
-	for id, _ := range Regions {
-		ids = append(ids, id)
+	for _, item := range resp.JSON200.Results {
+		if item.State == cloud.RegionSchemaStateACTIVE {
+			rm[item.Id] = item.DisplayName
+			ids = append(ids, item.Id)
+		}
 	}
 	slices.Sort(ids)
 
-	for idx, id := range ids {
-		completions[idx] = fmt.Sprintf("%d\t%s", id, Regions[id])
+	completions = make([]string, len(rm))
+	for i, id := range ids {
+		completions[i] = fmt.Sprintf("%d\t%s", id, rm[id])
 	}
 
 	return completions, cobra.ShellCompDirectiveKeepOrder | cobra.ShellCompDirectiveDefault

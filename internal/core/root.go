@@ -33,9 +33,11 @@ func Execute(commands []*cobra.Command) {
 	rootCmd.PersistentFlags().StringVarP(&meta.flagConfig, "config", "c", "", "The path to the config file")
 	rootCmd.PersistentFlags().BoolVarP(&meta.flagForce, "force", "f", false, `Assume answer "yes" to all "are you sure?" questions`)
 	rootCmd.PersistentFlags().StringVarP(&meta.flagProfile, "profile", "p", "", "The config profile to use")
+	rootCmd.RegisterFlagCompletionFunc("profile", profileCompletion)
 	rootCmd.PersistentFlags().BoolVarP(&meta.flagWait, "wait", "w", false, "Wait for command result")
 	rootCmd.PersistentFlags().IntVarP(&meta.flagCloudProject, "cloud-project", "", 0, "Cloud project ID")
 	rootCmd.PersistentFlags().IntVarP(&meta.flagCloudRegion, "cloud-region", "", 0, "Cloud region ID")
+	rootCmd.RegisterFlagCompletionFunc("cloud-region", regionCompletion)
 
 	output.FormatOption(rootCmd)
 	rootCmd.ParseFlags(os.Args[1:])
@@ -70,6 +72,7 @@ func Execute(commands []*cobra.Command) {
 		ID:    "configuration",
 		Title: "Configuration commands",
 	})
+
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		for _, safeCmd := range []string{"init", "config", "completion", "help"} {
 			if strings.Contains(cmd.CommandPath(), safeCmd) {

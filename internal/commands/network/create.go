@@ -10,6 +10,7 @@ import (
 	cloud "github.com/G-Core/gcore-cloud-sdk-go"
 	"github.com/G-core/gcore-cli/internal/core"
 	"github.com/G-core/gcore-cli/internal/errors"
+	"github.com/G-core/gcore-cli/internal/output"
 )
 
 // ^[a-zA-Z0-9][a-zA-Z 0-9._\-]{1,61}[a-zA-Z0-9._]$
@@ -95,6 +96,8 @@ func create() *cobra.Command {
 			}
 
 			if !waitForResult {
+				output.Print(fmt.Sprintf("Creating network: %s", resp.JSON200.Tasks[0]))
+
 				return nil
 			}
 

@@ -11,6 +11,7 @@ import (
 	cloud "github.com/G-Core/gcore-cloud-sdk-go"
 	"github.com/G-core/gcore-cli/internal/core"
 	"github.com/G-core/gcore-cli/internal/errors"
+	"github.com/G-core/gcore-cli/internal/output"
 	"github.com/G-core/gcore-cli/internal/terminal"
 )
 
@@ -51,8 +52,8 @@ func delete() *cobra.Command {
 			}
 
 			if !waitForResult {
-				// TODO: Use a logger which writes to stderr instead of fmt
-				fmt.Printf("Deleting network '%s'", networkId)
+				output.Print(fmt.Sprintf("Deleting network: %s", resp.JSON200.Tasks[0]))
+
 				return nil
 			}
 

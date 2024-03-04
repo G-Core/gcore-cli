@@ -10,6 +10,7 @@ import (
 	cloud "github.com/G-Core/gcore-cloud-sdk-go"
 	"github.com/G-core/gcore-cli/internal/core"
 	"github.com/G-core/gcore-cli/internal/errors"
+	"github.com/G-core/gcore-cli/internal/output"
 	"github.com/G-core/gcore-cli/internal/sflags"
 )
 
@@ -107,6 +108,7 @@ func create() *cobra.Command {
 			}
 
 			if !waitForResult {
+				output.Print(fmt.Sprintf("Creating subnet: %s", resp.JSON200.Tasks[0]))
 				return nil
 			}
 

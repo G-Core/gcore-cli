@@ -127,9 +127,13 @@ func create() *cobra.Command {
 	}
 
 	cmd.PersistentFlags().StringVarP(&networkID, "network", "", "", "network id")
+	cmd.RegisterFlagCompletionFunc("network", core.NetworkCompletion)
 	cmd.PersistentFlags().StringVarP(&cidr, "cidr", "", "", "subnet CIDR")
 	cmd.PersistentFlags().BoolVarP(&dhcp, "enable-dhcp", "", true, "default true")
 	cmd.PersistentFlags().IntVar(&ipVersion, "ip-version", 4, "IP version. default 4")
+	cmd.RegisterFlagCompletionFunc("ip-version", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"4\tIPv4", "6\tIPv6"}, cobra.ShellCompDirectiveDefault
+	})
 	cmd.PersistentFlags().BoolVarP(&router, "enable-router", "", false, "")
 	cmd.PersistentFlags().StringArrayVarP(&dnsServers, "dns", "", []string{}, "list of DNS servers")
 	cmd.PersistentFlags().StringArrayVarP(&sHostRoutes, "host-route", "", []string{}, "list of host routes")

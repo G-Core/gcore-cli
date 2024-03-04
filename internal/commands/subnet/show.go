@@ -30,10 +30,11 @@ func displaySubnet(ctx context.Context, id string) error {
 
 func show() *cobra.Command {
 	var cmd = &cobra.Command{
-		Use:   "show <id>",
-		Short: "Show information about specific subnet",
-		Long:  ``, // TODO: Description with examples
-		Args:  cobra.ExactArgs(1),
+		Use:               "show <id>",
+		Short:             "Show information about specific subnet",
+		ValidArgsFunction: core.SubnetCompletion,
+		Long:              ``, // TODO: Description with examples
+		Args:              cobra.ExactArgs(1),
 		PreRunE: func(cmd *cobra.Command, args []string) (err error) {
 			ctx := cmd.Context()
 			projectID, err = core.ExtractCloudProject(ctx)

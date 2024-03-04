@@ -117,6 +117,9 @@ func create() *cobra.Command {
 	createCmd.PersistentFlags().StringVarP(&networkType, "type", "",
 		string(cloud.CreateNetworkSchemaTypeVxlan),
 		"Network type, vlan or vxlan network type is allowed. Default value is vxlan")
+	createCmd.RegisterFlagCompletionFunc("type", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"vlan", "vxlan"}, cobra.ShellCompDirectiveDefault
+	})
 	createCmd.PersistentFlags().BoolVarP(&router, "router", "", true, "Create router. Default is true.")
 
 	return createCmd

@@ -31,10 +31,11 @@ func displayNetwork(ctx context.Context, id string) error {
 func show() *cobra.Command {
 	// showCmd represents the create command
 	var showCmd = &cobra.Command{
-		Use:   "show <id>",
-		Short: "Show information about specific network",
-		Long:  ``, // TODO: Description with examples
-		Args:  cobra.ExactArgs(1),
+		Use:               "show <id>",
+		Short:             "Show information about specific network",
+		Long:              ``, // TODO: Description with examples
+		Args:              cobra.ExactArgs(1),
+		ValidArgsFunction: core.NetworkCompletion,
 		PreRunE: func(cmd *cobra.Command, args []string) (err error) {
 			ctx := cmd.Context()
 			projectID, err = core.ExtractCloudProject(ctx)

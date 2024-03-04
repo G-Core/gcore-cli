@@ -23,11 +23,12 @@ func update() *cobra.Command {
 
 	// createCmd represents the create command
 	var cmd = &cobra.Command{
-		Use:     "update <id> <flags>",
-		Aliases: []string{"u"},
-		Short:   "Update a specific subnet",
-		Long:    ``,
-		Args:    cobra.MinimumNArgs(1),
+		Use:               "update <id> <flags>",
+		Aliases:           []string{"u"},
+		ValidArgsFunction: core.SubnetCompletion,
+		Short:             "Update a specific subnet",
+		Long:              ``,
+		Args:              cobra.MinimumNArgs(1),
 		PreRunE: func(cmd *cobra.Command, args []string) (err error) {
 			ctx := cmd.Context()
 			projectID, err = core.ExtractCloudProject(ctx)

@@ -132,7 +132,7 @@ func Commands() *cobra.Command {
 			authFunc := core.ExtractAuthFunc(ctx)
 
 			if !profile.IsLocal() {
-				baseUrl += "/fastedge"
+				baseUrl += "/cloud"
 			}
 
 			client, err = cloud.NewClientWithResponses(baseUrl, cloud.WithRequestEditorFn(authFunc))
@@ -147,5 +147,6 @@ func Commands() *cobra.Command {
 	}
 
 	subnetCmd.AddCommand(create(), show(), list(), update(), deleteCmd())
+
 	return subnetCmd
 }

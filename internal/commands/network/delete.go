@@ -17,11 +17,12 @@ import (
 func delete() *cobra.Command {
 	// deleteCmd represents the create command
 	var deleteCmd = &cobra.Command{
-		Use:     "delete <id>",
-		Aliases: []string{"d"},
-		Short:   "Delete a specific network",
-		Long:    ``,
-		Args:    cobra.MinimumNArgs(1),
+		Use:               "delete <id>",
+		Aliases:           []string{"d"},
+		Short:             "Delete a specific network",
+		Long:              ``,
+		Args:              cobra.MinimumNArgs(1),
+		ValidArgsFunction: core.NetworkCompletion,
 		PreRunE: func(cmd *cobra.Command, args []string) (err error) {
 			ctx := cmd.Context()
 			projectID, err = core.ExtractCloudProject(ctx)

@@ -39,13 +39,17 @@ func list() *cobra.Command {
 				return fmt.Errorf("failed to get network list: %w", err)
 			}
 
-			if resp.StatusCode() == http.StatusOK {
-				output.Print(resp.JSON200.Results)
-
-				return nil
+			if resp.StatusCode() != http.StatusOK {
+				return errors.ParseCloudErr(resp.Body)
 			}
 
-			return errors.ParseCloudErr(resp.Body)
+			if resp.JSON200 != nil && len(resp.JSON200.Results) > 0 {
+				output.Print(resp.JSON200.Results)
+			} else {
+				output.Print("You don't have networks")
+			}
+
+			return
 		},
 	}
 

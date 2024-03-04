@@ -14,10 +14,11 @@ import (
 func rename() *cobra.Command {
 	// renameCmd represents the create command
 	var renameCmd = &cobra.Command{
-		Use:   "rename <id> <new-name>",
-		Short: "Rename a specific network",
-		Long:  ``,
-		Args:  cobra.MinimumNArgs(2),
+		Use:               "rename <id> <new-name>",
+		Short:             "Rename a specific network",
+		ValidArgsFunction: core.NetworkCompletion,
+		Long:              ``,
+		Args:              cobra.MinimumNArgs(2),
 		PreRunE: func(cmd *cobra.Command, args []string) (err error) {
 			ctx := cmd.Context()
 			projectID, err = core.ExtractCloudProject(ctx)

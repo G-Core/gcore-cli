@@ -47,6 +47,12 @@ func list() *cobra.Command {
 				return errors.ParseCloudErr(resp.Body)
 			}
 
+			if resp.JSON200 == nil && len(resp.JSON200.Results) == 0 {
+				output.Print("You don't have subnets")
+
+				return nil
+			}
+
 			if networkID == "" {
 				output.Print(resp.JSON200)
 
@@ -61,7 +67,12 @@ func list() *cobra.Command {
 
 				subnets = append(subnets, s)
 			}
-			output.Print(subnets)
+
+			if len(subnets) > 0 {
+				output.Print(subnets)
+			} else {
+				output.Print("You don't have subnets")
+			}
 
 			return nil
 		},
@@ -70,6 +81,7 @@ func list() *cobra.Command {
 	cmd.PersistentFlags().StringVarP(&networkID, "network", "",
 		"",
 		"Display only subnets that belong to specific network")
+	cmd.RegisterFlagCompletionFunc("network", core.NetworkCompletion)
 
 	return cmd
 }

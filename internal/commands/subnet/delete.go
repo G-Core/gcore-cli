@@ -16,11 +16,12 @@ import (
 
 func deleteCmd() *cobra.Command {
 	var cmd = &cobra.Command{
-		Use:     "delete <id>",
-		Aliases: []string{"d"},
-		Short:   "Delete a specific subnet",
-		Long:    ``,
-		Args:    cobra.MinimumNArgs(1),
+		Use:               "delete <id>",
+		Aliases:           []string{"d"},
+		Short:             "Delete a specific subnet",
+		Long:              ``,
+		ValidArgsFunction: core.SubnetCompletion,
+		Args:              cobra.MinimumNArgs(1),
 		PreRunE: func(cmd *cobra.Command, args []string) (err error) {
 			ctx := cmd.Context()
 			projectID, err = core.ExtractCloudProject(ctx)

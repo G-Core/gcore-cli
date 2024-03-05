@@ -58,7 +58,7 @@ func create() *cobra.Command {
 			// TODO: Validation
 			if networkID == "" || cidr == "" {
 				return &errors.CliError{
-					Message: "One of required flags is missing",
+					Err: fmt.Errorf("One of required flags is missing"),
 					// TODO: Possibility to automate this
 					Hint: "--cidr or --network are required for this command",
 				}
@@ -75,8 +75,8 @@ func create() *cobra.Command {
 				for _, m := range sm {
 					if m["destination"] == "" || m["nexthop"] == "" {
 						return &errors.CliError{
-							Message: "One of host route fields is missing",
-							Hint:    "To add host route use --host-route destination:value1,nexthop:value2",
+							Err:  fmt.Errorf("One of host route fields is missing"),
+							Hint: "To add host route use --host-route destination:value1,nexthop:value2",
 						}
 					}
 

@@ -51,8 +51,8 @@ func Execute(commands []*cobra.Command) {
 
 		if profile.ApiKey == nil || *profile.ApiKey == "" {
 			return &errors.CliError{
-				Message: "subcommand requires authorization",
-				Hint:    "See gcore-cli init, gcore-cli config",
+				Err:  fmt.Errorf("subcommand requires authorization"),
+				Hint: "See gcore-cli init, gcore-cli config",
 			}
 		}
 
@@ -87,9 +87,9 @@ func Execute(commands []*cobra.Command) {
 
 		if profile.ApiUrl == nil && *profile.ApiUrl == "" {
 			return &errors.CliError{
-				Message: "URL for API isn't specified",
-				Hint:    "You can specify it by -u flag or GCORE_URL env variable",
-				Code:    1,
+				Err:  fmt.Errorf("URL for API isn't specified"),
+				Hint: "You can specify it by -u flag or GCORE_URL env variable",
+				Code: 1,
 			}
 		}
 

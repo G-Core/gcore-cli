@@ -40,9 +40,10 @@ func profileCmd() *cobra.Command {
 
 func deleteProfileCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "delete <profile>",
-		Aliases: []string{"d"},
-		Short:   "Delete profile from the config",
+		Use:               "delete <profile>",
+		Aliases:           []string{"d"},
+		ValidArgsFunction: core.ProfileCompletion,
+		Short:             "Delete profile from the config",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				cmd.Help()
@@ -112,8 +113,9 @@ func listProfiles() *cobra.Command {
 
 func switchProfileCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "switch <profile>",
-		Short: "Make selected profile active",
+		Use:               "switch <profile>",
+		ValidArgsFunction: core.ProfileCompletion,
+		Short:             "Make selected profile active",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				cmd.Help()

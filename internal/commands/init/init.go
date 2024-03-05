@@ -171,26 +171,40 @@ func askToChooseRegion(ctx context.Context, client *cloud.ClientWithResponses) (
 		}
 	}
 
-	if len(resp.JSON200.Results) == 1 {
-		fmt.Printf("Cloud region: %d (%s)\n", resp.JSON200.Results[0].Id, resp.JSON200.Results[0].DisplayName)
-
-		return &resp.JSON200.Results[0].Id, nil
+	var regions []cloud.RegionSchema
+	for _, region := range resp.JSON200.Results {
+		if region.State == cloud.RegionSchemaStateACTIVE {
+			regions = append(regions, region)
+		}
 	}
 
-	var defProject = resp.JSON200.Results[0]
+	if len(regions) == 0 {
+		fmt.Printf("There're no available active regions")
+
+		return nil, nil
+	}
+
+	if len(regions) == 1 {
+		fmt.Printf("Cloud region: %d (%s)\n", regions[0].Id, regions[0].DisplayName)
+
+		return &regions[0].Id, nil
+	}
+
+	var defProject = regions[0]
 	fmt.Printf("Please, choose default region for Cloud [%d (%s)] \n", 0, defProject.DisplayName)
-	for idx, project := range resp.JSON200.Results {
+	for idx, project := range regions {
 		fmt.Printf("%d - %s\n", idx, project.DisplayName)
 	}
+
 	var idx = 0
 	for {
 		fmt.Scanf("%d", &idx)
-		if idx < len(resp.JSON200.Results)-1 &&
+		if idx < len(regions)-1 &&
 			idx >= 0 {
 			break
 		}
 	}
-	fmt.Printf("Cloud region: %d (%s)\n", resp.JSON200.Results[idx].Id, resp.JSON200.Results[idx].DisplayName)
+	fmt.Printf("Cloud region: %d (%s)\n", regions[idx].Id, regions[idx].DisplayName)
 
-	return &resp.JSON200.Results[idx].Id, nil
+	return &regions[idx].Id, nil
 }

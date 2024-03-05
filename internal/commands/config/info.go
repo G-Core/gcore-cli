@@ -17,7 +17,7 @@ type profileView struct {
 	ApiUrl       *string
 	ApiKey       *string
 	CloudProject *int
-	CloudRegion  string
+	CloudRegion  *string
 }
 
 func toProfileView(name string, profile *config.Profile) profileView {
@@ -39,9 +39,9 @@ func toProfileView(name string, profile *config.Profile) profileView {
 
 	if profile.CloudRegion != nil {
 		if region, exist := core.Regions[*profile.CloudRegion]; exist {
-			pv.CloudRegion = fmt.Sprintf("%d (%s)", *profile.CloudRegion, region)
+			pv.CloudRegion = pointer.To(fmt.Sprintf("%d (%s)", *profile.CloudRegion, region))
 		} else {
-			pv.CloudRegion = fmt.Sprintf("%d", *profile.CloudRegion)
+			pv.CloudRegion = pointer.To(fmt.Sprintf("%d", *profile.CloudRegion))
 		}
 	}
 

@@ -1,6 +1,7 @@
 package subnet
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/spf13/cobra"
@@ -55,8 +56,8 @@ func update() *cobra.Command {
 				for _, m := range sm {
 					if m["destination"] == "" || m["nexthop"] == "" {
 						return &errors.CliError{
-							Message: "One of host route fields is missing",
-							Hint:    "To add host route use --host-route destination:value1,nexthop:value2",
+							Err:  fmt.Errorf("One of host route fields is missing"),
+							Hint: "To add host route use --host-route destination:value1,nexthop:value2",
 						}
 					}
 

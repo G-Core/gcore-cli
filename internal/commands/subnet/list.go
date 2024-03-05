@@ -47,7 +47,7 @@ func list() *cobra.Command {
 				return errors.ParseCloudErr(resp.Body)
 			}
 
-			if resp.JSON200 == nil && len(resp.JSON200.Results) == 0 {
+			if resp.JSON200 == nil || len(resp.JSON200.Results) == 0 {
 				output.Print("You don't have subnets")
 
 				return nil

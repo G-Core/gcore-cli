@@ -2,6 +2,7 @@ package network
 
 import (
 	"fmt"
+	"github.com/G-core/gcore-cli/internal/errors"
 	"regexp"
 
 	"github.com/spf13/cobra"
@@ -114,16 +115,17 @@ func Commands() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			baseUrl := *profile.ApiUrl
-			authFunc := core.ExtractAuthFunc(ctx)
 
-			if !profile.IsLocal() {
-				baseUrl += "/cloud"
+			if profile.ApiKey == nil || *profile.ApiKey == "" {
+				return &errors.CliError{
+					Err:  fmt.Errorf("subcommand requires APIKEY token"),
+					Hint: "See gcore-cli init, gcore-cli config",
+				}
 			}
 
-			client, err = cloud.NewClientWithResponses(baseUrl, cloud.WithRequestEditorFn(authFunc))
+			client, err = core.CloudClient(ctx)
 			if err != nil {
-				return fmt.Errorf("cannot init SDK: %w", err)
+				return err
 			}
 
 			waitForResult = cmd.Flag("wait").Value.String() == "true"

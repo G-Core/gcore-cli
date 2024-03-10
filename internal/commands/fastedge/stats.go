@@ -56,7 +56,7 @@ func stat() *cobra.Command {
 	}
 
 	var cmdCalls = &cobra.Command{
-		Use:     "calls <app_id>",
+		Use:     "calls <app_name>",
 		Aliases: []string{"calls"},
 		Short:   "Show app calls statistic",
 		Long: `Show number of app calls, grouped by time slots and HTTP statuses.
@@ -67,9 +67,9 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 "--step" (in seconds).`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := strconv.ParseInt(args[0], 10, 64)
+			id, err := getAppIdByName(args[0])
 			if err != nil {
-				return fmt.Errorf("parsing app id: %w", err)
+				return fmt.Errorf("getting app id: %w", err)
 			}
 
 			from, err := parseTimeFlag(cmd, "from")
@@ -169,7 +169,7 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 	statFlags(cmdCalls)
 
 	var cmdDuration = &cobra.Command{
-		Use:     "duration <app_id>",
+		Use:     "duration <app_name>",
 		Aliases: []string{"duration", "time", "timing"},
 		Short:   "Show app execution duration",
 		Long: `Show duration of app calls, grouped by time slots. All times are in msec
@@ -180,9 +180,9 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 "--step" (in seconds).`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := strconv.ParseInt(args[0], 10, 64)
+			id, err := getAppIdByName(args[0])
 			if err != nil {
-				return fmt.Errorf("parsing app id: %w", err)
+				return fmt.Errorf("getting app id: %w", err)
 			}
 
 			from, err := parseTimeFlag(cmd, "from")

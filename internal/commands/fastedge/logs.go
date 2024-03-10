@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -85,19 +84,14 @@ This command allows you filtering by edge name, client ip and time range.`,
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			appName := args[0]
-			idRsp, err := client.GetAppIdByNameWithResponse(context.Background(), appName)
+			id, err := getAppIdByName(args[0])
 			if err != nil {
 				return fmt.Errorf("getting app id: %w", err)
 			}
 
-			if idRsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("%s", string(idRsp.Body))
-			}
-
 			rsp, err := client.GetV1AppsIdLogsWithResponse(
 				context.Background(),
-				*idRsp.JSON200,
+				id,
 				&sdk.GetV1AppsIdLogsParams{
 					From:     &from,
 					To:       &to,
@@ -145,7 +139,7 @@ This command allows you filtering by edge name, client ip and time range.`,
 					// Call the API again with the new page number
 					rsp, err = client.GetV1AppsIdLogsWithResponse(
 						context.Background(),
-						*idRsp.JSON200,
+						id,
 						&sdk.GetV1AppsIdLogsParams{
 							From:        &from,
 							To:          &to,
@@ -171,13 +165,13 @@ This command allows you filtering by edge name, client ip and time range.`,
 	}
 
 	var cmdLogEnable = &cobra.Command{
-		Use:   "enable <app_id>",
+		Use:   "enable <app_name>",
 		Short: "Enable app logging",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := strconv.ParseInt(args[0], 10, 64)
+			id, err := getAppIdByName(args[0])
 			if err != nil {
-				return fmt.Errorf("parsing app id: %w", err)
+				return fmt.Errorf("getting app id: %w", err)
 			}
 			rsp, err := client.PatchAppWithResponse(
 				context.Background(),
@@ -212,13 +206,13 @@ This command allows you filtering by edge name, client ip and time range.`,
 	}
 
 	var cmdLogDisable = &cobra.Command{
-		Use:   "disable <app_id>",
+		Use:   "disable <app_name>",
 		Short: "Disable app logging",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := strconv.ParseInt(args[0], 10, 64)
+			id, err := getAppIdByName(args[0])
 			if err != nil {
-				return fmt.Errorf("parsing app id: %w", err)
+				return fmt.Errorf("getting app id: %w", err)
 			}
 			rsp, err := client.PatchAppWithResponse(
 				context.Background(),

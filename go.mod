@@ -2,7 +2,6 @@ module github.com/G-core/gcore-cli
 
 go 1.21.5
 
-replace github.com/G-Core/FastEdge-client-sdk-go v0.0.0-20240214130448-d87df1e38764 => ../FastEdge-client-sdk-go
 
 require (
 	github.com/G-Core/FastEdge-client-sdk-go v0.0.0-20240304075046-db0c8c3d17e7

@@ -86,7 +86,7 @@ This command allows you filtering by edge name, client ip and time range.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := getAppIdByName(args[0])
 			if err != nil {
-				return fmt.Errorf("getting app id: %w", err)
+				return fmt.Errorf("cannot find app by name: %w", err)
 			}
 
 			rsp, err := client.GetV1AppsIdLogsWithResponse(
@@ -171,7 +171,7 @@ This command allows you filtering by edge name, client ip and time range.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := getAppIdByName(args[0])
 			if err != nil {
-				return fmt.Errorf("getting app id: %w", err)
+				return fmt.Errorf("cannot find app by name: %w", err)
 			}
 			rsp, err := client.PatchAppWithResponse(
 				context.Background(),
@@ -212,7 +212,7 @@ This command allows you filtering by edge name, client ip and time range.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := getAppIdByName(args[0])
 			if err != nil {
-				return fmt.Errorf("getting app id: %w", err)
+				return fmt.Errorf("cannot find app by name: %w", err)
 			}
 			rsp, err := client.PatchAppWithResponse(
 				context.Background(),

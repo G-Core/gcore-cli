@@ -69,7 +69,7 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := getAppIdByName(args[0])
 			if err != nil {
-				return fmt.Errorf("getting app id: %w", err)
+				return fmt.Errorf("cannot find app by name: %w", err)
 			}
 
 			from, err := parseTimeFlag(cmd, "from")
@@ -182,7 +182,7 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := getAppIdByName(args[0])
 			if err != nil {
-				return fmt.Errorf("getting app id: %w", err)
+				return fmt.Errorf("cannot find app by name: %w", err)
 			}
 
 			from, err := parseTimeFlag(cmd, "from")

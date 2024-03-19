@@ -18,11 +18,11 @@ import (
 )
 
 func appLogsFilterFlags(cmd *cobra.Command) {
-	cmd.Flags().StringP("from", "", "", "From time")
-	cmd.Flags().StringP("to", "", "", "To time")
-	cmd.Flags().StringP("sort", "", "asc", "Sort order")
-	cmd.Flags().StringP("edge", "", "", "Edge name")
-	cmd.Flags().StringP("client-ip", "", "", "Client IP")
+	cmd.Flags().String("from", "today", "Reporting period start, UTC")
+	cmd.Flags().String("to", "now", "Reporting period end, UTC")
+	cmd.Flags().String("sort", "asc", "Log sort order, asc or desc")
+	cmd.Flags().String("edge", "", "Edge name filter")
+	cmd.Flags().String("client-ip", "", "Client IP filter")
 }
 
 // logs-related commands
@@ -86,6 +86,9 @@ This command allows you filtering by edge name, client ip and time range.`,
 
 			if sortFlag != "" {
 				logParamSort := sdk.GetV1AppsIdLogsParamsSort(sortFlag)
+				if logParamSort != sdk.Asc && logParamSort != sdk.Desc {
+					return errors.New("invalid value for `sort` expected asc or desc")
+				}
 				sort = &logParamSort
 			}
 

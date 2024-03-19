@@ -3,11 +3,9 @@ package fastedge
 import (
 	"bufio"
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -28,7 +26,7 @@ func appLogsFilterFlags(cmd *cobra.Command) {
 // logs-related commands
 func logs() *cobra.Command {
 	var (
-		from, to *time.Time
+		from, to time.Time
 		sort     *sdk.GetV1AppsIdLogsParamsSort
 		edge     *string
 		clientIp *string
@@ -41,20 +39,13 @@ func logs() *cobra.Command {
 	}
 
 	var cmdLogsShow = &cobra.Command{
-		Use:   "show <app_id>",
+		Use:   "show <app_name>",
 		Short: "Show app logs",
 		Long: `Show app logs printed to stdout/stderr. 
 This command allows you filtering by edge name, client ip and time range.`,
 		Args: cobra.ExactArgs(1),
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			fromFlag, err := cmd.Flags().GetString("from")
-			if err != nil {
-				return err
-			}
-			toFlag, err := cmd.Flags().GetString("to")
-			if err != nil {
-				return err
-			}
+
 			sortFlag, err := cmd.Flags().GetString("sort")
 			if err != nil {
 				return err
@@ -68,20 +59,14 @@ This command allows you filtering by edge name, client ip and time range.`,
 				return err
 			}
 
-			if fromFlag != "" {
-				f, err := time.Parse(time.RFC3339, fromFlag)
-				if err != nil {
-					return errors.New("invalid format for `from` expected RFC3339")
-				}
-				from = &f
+			from, err = parseTimeFlag(cmd, "from")
+			if err != nil {
+				return fmt.Errorf("cannot parse 'from' time: %w", err)
 			}
 
-			if toFlag != "" {
-				t, err := time.Parse(time.RFC3339, toFlag)
-				if err != nil {
-					return errors.New("invalid format for `to` expected RFC3339")
-				}
-				to = &t
+			to, err = parseTimeFlag(cmd, "to")
+			if err != nil {
+				return fmt.Errorf("cannot parse 'to' time: %w", err)
 			}
 
 			if sortFlag != "" {
@@ -99,16 +84,17 @@ This command allows you filtering by edge name, client ip and time range.`,
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := strconv.ParseInt(args[0], 10, 64)
+			id, err := getAppIdByName(args[0])
 			if err != nil {
-				return fmt.Errorf("parsing app id: %w", err)
+				return fmt.Errorf("cannot find app by name: %w", err)
 			}
+
 			rsp, err := client.GetV1AppsIdLogsWithResponse(
 				context.Background(),
 				id,
 				&sdk.GetV1AppsIdLogsParams{
-					From:     from,
-					To:       to,
+					From:     &from,
+					To:       &to,
 					Edge:     edge,
 					Sort:     sort,
 					ClientIp: clientIp,
@@ -155,8 +141,8 @@ This command allows you filtering by edge name, client ip and time range.`,
 						context.Background(),
 						id,
 						&sdk.GetV1AppsIdLogsParams{
-							From:        from,
-							To:          to,
+							From:        &from,
+							To:          &to,
 							Edge:        edge,
 							Sort:        sort,
 							ClientIp:    clientIp,
@@ -179,13 +165,13 @@ This command allows you filtering by edge name, client ip and time range.`,
 	}
 
 	var cmdLogEnable = &cobra.Command{
-		Use:   "enable <app_id>",
+		Use:   "enable <app_name>",
 		Short: "Enable app logging",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := strconv.ParseInt(args[0], 10, 64)
+			id, err := getAppIdByName(args[0])
 			if err != nil {
-				return fmt.Errorf("parsing app id: %w", err)
+				return fmt.Errorf("cannot find app by name: %w", err)
 			}
 			rsp, err := client.PatchAppWithResponse(
 				context.Background(),
@@ -220,13 +206,13 @@ This command allows you filtering by edge name, client ip and time range.`,
 	}
 
 	var cmdLogDisable = &cobra.Command{
-		Use:   "disable <app_id>",
+		Use:   "disable <app_name>",
 		Short: "Disable app logging",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := strconv.ParseInt(args[0], 10, 64)
+			id, err := getAppIdByName(args[0])
 			if err != nil {
-				return fmt.Errorf("parsing app id: %w", err)
+				return fmt.Errorf("cannot find app by name: %w", err)
 			}
 			rsp, err := client.PatchAppWithResponse(
 				context.Background(),

@@ -23,6 +23,7 @@ func appLogsFilterFlags(cmd *cobra.Command) {
 	cmd.Flags().String("sort", "asc", "Log sort order, asc or desc")
 	cmd.Flags().String("edge", "", "Edge name filter")
 	cmd.Flags().String("client-ip", "", "Client IP filter")
+	cmd.Flags().MarkHidden("client-ip")
 }
 
 // logs-related commands

@@ -82,7 +82,7 @@ uploading binary using "--file <filename>". To load file from stdin, use "-" as 
 	appPropertiesFlags(cmdCreate)
 
 	var cmdUpdate = &cobra.Command{
-		Use:   "update <app_id>",
+		Use:   "update <app_name>",
 		Short: "Update the app",
 		Long: `This command allows to change only specified properties of the app,
 omitted properties are left intact. When changing key-value properties, such
@@ -92,9 +92,9 @@ You can use either previously-uploaded binary, by specifying "--binary <id>", or
 uploading binary using "--file <filename>". To load file from stdin, use "-" as filename`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := strconv.ParseInt(args[0], 10, 64)
+			id, err := getAppIdByName(args[0])
 			if err != nil {
-				return fmt.Errorf("parsing app id: %w", err)
+				return fmt.Errorf("cannot find app by name: %w", err)
 			}
 
 			app, err := parseAppProperties(cmd)
@@ -184,7 +184,7 @@ uploading binary using "--file <filename>". To load file from stdin, use "-" as 
 	}
 
 	var cmdGet = &cobra.Command{
-		Use:     "show <app_id>",
+		Use:     "show <app_name>",
 		Aliases: []string{"get"},
 		Short:   "Show app details",
 		Long: `Show app properties. This command doesn't show app call statisrics.
@@ -192,9 +192,9 @@ To see statistics, use "fastedge stat app_calls" and "fastedge stat app_duration
 commands.`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := strconv.ParseInt(args[0], 10, 64)
+			id, err := getAppIdByName(args[0])
 			if err != nil {
-				return fmt.Errorf("parsing app id: %w", err)
+				return fmt.Errorf("cannot find app by name: %w", err)
 			}
 			rsp, err := client.GetAppWithResponse(
 				context.Background(),
@@ -230,13 +230,13 @@ commands.`,
 	}
 
 	var cmdEnable = &cobra.Command{
-		Use:   "enable <app_id>",
+		Use:   "enable <app_name>",
 		Short: "Enable the app",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := strconv.ParseInt(args[0], 10, 64)
+			id, err := getAppIdByName(args[0])
 			if err != nil {
-				return fmt.Errorf("parsing app id: %w", err)
+				return fmt.Errorf("cannot find app by name: %w", err)
 			}
 			rsp, err := client.PatchAppWithResponse(
 				context.Background(),
@@ -261,13 +261,13 @@ commands.`,
 	}
 
 	var cmdDisable = &cobra.Command{
-		Use:   "disable <app_id>",
+		Use:   "disable <app_name>",
 		Short: "Disable the app",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := strconv.ParseInt(args[0], 10, 64)
+			id, err := getAppIdByName(args[0])
 			if err != nil {
-				return fmt.Errorf("parsing app id: %w", err)
+				return fmt.Errorf("cannot find app by name: %w", err)
 			}
 			rsp, err := client.PatchAppWithResponse(
 				context.Background(),
@@ -292,7 +292,7 @@ commands.`,
 	}
 
 	var cmdDelete = &cobra.Command{
-		Use:     "delete <app_id>",
+		Use:     "delete <app_name>",
 		Short:   "Delete the app",
 		Aliases: []string{"rm"},
 		Long: `This command deletes the app. The binary, referenced by the app, is not deleted,
@@ -300,9 +300,9 @@ however binaries, not referenced by any app, get deleted by cleanup process regu
 so if you don't want this to happen, consider disabling the app to keep binary referenced`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := strconv.ParseInt(args[0], 10, 64)
+			id, err := getAppIdByName(args[0])
 			if err != nil {
-				return fmt.Errorf("parsing app id: %w", err)
+				return fmt.Errorf("cannot find app by name: %w", err)
 			}
 
 			if !sure.AreYou(cmd, fmt.Sprintf("delete app %d", id)) {
@@ -444,4 +444,18 @@ func outputMap(m *map[string]string, title string) {
 		}
 		output.Table(table, output.FmtHuman)
 	}
+}
+
+func getAppIdByName(appName string) (int64, error) {
+	idRsp, err := client.GetAppIdByNameWithResponse(context.Background(), appName)
+	if err != nil {
+		return 0, fmt.Errorf("api response: %w", err)
+	}
+	if idRsp.StatusCode() != http.StatusOK {
+		return 0, fmt.Errorf("%s", string(idRsp.Body))
+	}
+	if idRsp.JSON200 == nil {
+		return 0, fmt.Errorf("app '%s' not found", appName)
+	}
+	return *idRsp.JSON200, nil
 }

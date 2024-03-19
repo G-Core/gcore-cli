@@ -3,6 +3,7 @@ package fastedge
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"

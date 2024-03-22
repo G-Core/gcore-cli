@@ -34,7 +34,7 @@ brew install gcore-cli
 If you have [Go](https://go.dev) installed on your machine, you can install the CLI from sources with:
 
 ```sh
-go install github.com/g-core/gcore-cli/cmd/gcore-cli@latest
+go install github.com/G-core/gcore-cli/cmd/gcore-cli@latest
 ```
 
 ## Licensing

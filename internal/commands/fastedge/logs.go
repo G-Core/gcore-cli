@@ -2,7 +2,6 @@ package fastedge
 
 import (
 	"bufio"
-	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -89,13 +88,14 @@ This command allows you filtering by edge name, client ip and time range.`,
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := getAppIdByName(args[0])
+			ctx := cmd.Context()
+			id, err := getAppIdByName(ctx, args[0])
 			if err != nil {
 				return fmt.Errorf("cannot find app by name: %w", err)
 			}
 
 			rsp, err := client.GetV1AppsIdLogsWithResponse(
-				context.Background(),
+				ctx,
 				id,
 				&sdk.GetV1AppsIdLogsParams{
 					From:     &from,
@@ -143,7 +143,7 @@ This command allows you filtering by edge name, client ip and time range.`,
 
 					// Call the API again with the new page number
 					rsp, err = client.GetV1AppsIdLogsWithResponse(
-						context.Background(),
+						ctx,
 						id,
 						&sdk.GetV1AppsIdLogsParams{
 							From:        &from,
@@ -174,12 +174,13 @@ This command allows you filtering by edge name, client ip and time range.`,
 		Short: "Enable app logging",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := getAppIdByName(args[0])
+			ctx := cmd.Context()
+			id, err := getAppIdByName(ctx, args[0])
 			if err != nil {
 				return fmt.Errorf("cannot find app by name: %w", err)
 			}
 			rsp, err := client.PatchAppWithResponse(
-				context.Background(),
+				ctx,
 				id,
 				sdk.App{Debug: newPointer(true)},
 			)
@@ -191,7 +192,7 @@ This command allows you filtering by edge name, client ip and time range.`,
 			}
 
 			rsp1, err := client.GetAppWithResponse(
-				context.Background(),
+				ctx,
 				id,
 			)
 			if err != nil {
@@ -215,12 +216,13 @@ This command allows you filtering by edge name, client ip and time range.`,
 		Short: "Disable app logging",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := getAppIdByName(args[0])
+			ctx := cmd.Context()
+			id, err := getAppIdByName(ctx, args[0])
 			if err != nil {
 				return fmt.Errorf("cannot find app by name: %w", err)
 			}
 			rsp, err := client.PatchAppWithResponse(
-				context.Background(),
+				ctx,
 				id,
 				sdk.App{Debug: newPointer(false)},
 			)

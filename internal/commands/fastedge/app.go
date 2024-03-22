@@ -34,6 +34,7 @@ You can use either previously-uploaded binary, by specifying "--binary <id>", or
 uploading binary using "--file <filename>". To load file from stdin, use "-" as filename`,
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := cmd.Context()
 			app, err := parseAppProperties(cmd)
 			if err != nil {
 				return err
@@ -49,14 +50,14 @@ uploading binary using "--file <filename>". To load file from stdin, use "-" as 
 				if file == "" {
 					return errors.New("binary must be specified either using --binary <id> or --file <filename>")
 				}
-				id, err := uploadBinary(file)
+				id, err := uploadBinary(ctx, file)
 				if err != nil {
 					return err
 				}
 				app.Binary = &id
 			}
 
-			rsp, err := client.AddAppWithResponse(context.Background(), app)
+			rsp, err := client.AddAppWithResponse(ctx, app)
 			if err != nil {
 				return fmt.Errorf("adding the app: %w", err)
 			}
@@ -92,7 +93,8 @@ You can use either previously-uploaded binary, by specifying "--binary <id>", or
 uploading binary using "--file <filename>". To load file from stdin, use "-" as filename`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := getAppIdByName(args[0])
+			ctx := cmd.Context()
+			id, err := getAppIdByName(ctx, args[0])
 			if err != nil {
 				return fmt.Errorf("cannot find app by name: %w", err)
 			}
@@ -107,7 +109,7 @@ uploading binary using "--file <filename>". To load file from stdin, use "-" as 
 					return fmt.Errorf("cannot parse file name: %w", err)
 				}
 				if file != "" {
-					id, err := uploadBinary(file)
+					id, err := uploadBinary(ctx, file)
 					if err != nil {
 						return err
 					}
@@ -119,7 +121,7 @@ uploading binary using "--file <filename>". To load file from stdin, use "-" as 
 				return e.ErrAborted
 			}
 
-			rsp, err := client.PatchAppWithResponse(context.Background(), id, app)
+			rsp, err := client.PatchAppWithResponse(ctx, id, app)
 			if err != nil {
 				return fmt.Errorf("updating the app: %w", err)
 			}
@@ -150,7 +152,7 @@ uploading binary using "--file <filename>". To load file from stdin, use "-" as 
 		Short:   "Show list of client's apps",
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			rsp, err := client.ListAppsWithResponse(context.Background())
+			rsp, err := client.ListAppsWithResponse(cmd.Context())
 			if err != nil {
 				return fmt.Errorf("getting the list of apps: %w", err)
 			}
@@ -192,12 +194,13 @@ To see statistics, use "fastedge stat app_calls" and "fastedge stat app_duration
 commands.`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := getAppIdByName(args[0])
+			ctx := cmd.Context()
+			id, err := getAppIdByName(ctx, args[0])
 			if err != nil {
 				return fmt.Errorf("cannot find app by name: %w", err)
 			}
 			rsp, err := client.GetAppWithResponse(
-				context.Background(),
+				ctx,
 				id,
 			)
 			if err != nil {
@@ -234,12 +237,13 @@ commands.`,
 		Short: "Enable the app",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := getAppIdByName(args[0])
+			ctx := cmd.Context()
+			id, err := getAppIdByName(ctx, args[0])
 			if err != nil {
 				return fmt.Errorf("cannot find app by name: %w", err)
 			}
 			rsp, err := client.PatchAppWithResponse(
-				context.Background(),
+				ctx,
 				id,
 				sdk.App{Status: newPointer(1)},
 			)
@@ -265,12 +269,13 @@ commands.`,
 		Short: "Disable the app",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := getAppIdByName(args[0])
+			ctx := cmd.Context()
+			id, err := getAppIdByName(ctx, args[0])
 			if err != nil {
 				return fmt.Errorf("cannot find app by name: %w", err)
 			}
 			rsp, err := client.PatchAppWithResponse(
-				context.Background(),
+				ctx,
 				id,
 				sdk.App{Status: newPointer(2)},
 			)
@@ -300,7 +305,8 @@ however binaries, not referenced by any app, get deleted by cleanup process regu
 so if you don't want this to happen, consider disabling the app to keep binary referenced`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := getAppIdByName(args[0])
+			ctx := cmd.Context()
+			id, err := getAppIdByName(ctx, args[0])
 			if err != nil {
 				return fmt.Errorf("cannot find app by name: %w", err)
 			}
@@ -309,7 +315,7 @@ so if you don't want this to happen, consider disabling the app to keep binary r
 				return e.ErrAborted
 			}
 
-			rsp, err := client.DelAppWithResponse(context.Background(), id)
+			rsp, err := client.DelAppWithResponse(ctx, id)
 			if err != nil {
 				return fmt.Errorf("deleting app: %w", err)
 			}
@@ -446,8 +452,8 @@ func outputMap(m *map[string]string, title string) {
 	}
 }
 
-func getAppIdByName(appName string) (int64, error) {
-	idRsp, err := client.GetAppIdByNameWithResponse(context.Background(), appName)
+func getAppIdByName(ctx context.Context, appName string) (int64, error) {
+	idRsp, err := client.GetAppIdByNameWithResponse(ctx, appName)
 	if err != nil {
 		return 0, fmt.Errorf("api response: %w", err)
 	}

@@ -32,7 +32,8 @@ func binary() *cobra.Command {
 		Short:   "Show list of client's binaries",
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			rsp, err := client.ListBinariesWithResponse(context.Background(), &sdk.ListBinariesParams{})
+			ctx := cmd.Context()
+			rsp, err := client.ListBinariesWithResponse(ctx, &sdk.ListBinariesParams{})
 			if err != nil {
 				return fmt.Errorf("getting the list of binaries: %w", err)
 			}
@@ -74,12 +75,13 @@ func binary() *cobra.Command {
 If this flag is omitted, file contant is read from stdin.`,
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := cmd.Context()
 			src, err := cmd.Flags().GetString("file")
 			if err != nil {
 				return errors.New("please specify binary filename")
 			}
 
-			id, err := uploadBinary(src)
+			id, err := uploadBinary(ctx, src)
 			if err != nil {
 				return err
 			}
@@ -97,12 +99,13 @@ If this flag is omitted, file contant is read from stdin.`,
 		Short:   "Show binary details",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := cmd.Context()
 			id, err := strconv.ParseInt(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("parsing binary id: %w", err)
 			}
 
-			rsp, err := client.GetBinaryWithResponse(context.Background(), id)
+			rsp, err := client.GetBinaryWithResponse(ctx, id)
 			if err != nil {
 				return fmt.Errorf("getting the list of plans: %w", err)
 			}
@@ -144,12 +147,13 @@ If this flag is omitted, file contant is read from stdin.`,
 		Long:    `Delete the binary. Binary cannot be deleted if it is still referenced by any app.`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := cmd.Context()
 			id, err := strconv.ParseInt(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("parsing binary id: %w", err)
 			}
 
-			rsp, err := client.DelBinaryWithResponse(context.Background(), id)
+			rsp, err := client.DelBinaryWithResponse(ctx, id)
 			if err != nil {
 				return fmt.Errorf("getting the list of plans: %w", err)
 			}
@@ -172,7 +176,7 @@ If this flag is omitted, file contant is read from stdin.`,
 	return cmdBin
 }
 
-func uploadBinary(src string) (int64, error) {
+func uploadBinary(ctx context.Context, src string) (int64, error) {
 	r := os.Stdin
 	var err error
 	if src != sourceStdin {
@@ -184,7 +188,7 @@ func uploadBinary(src string) (int64, error) {
 	}
 
 	rsp, err := client.StoreBinaryWithBodyWithResponse(
-		context.Background(),
+		ctx,
 		wasmContentType,
 		r,
 	)

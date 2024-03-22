@@ -12,6 +12,7 @@ import (
 	"github.com/spf13/cobra"
 
 	sdk "github.com/G-Core/FastEdge-client-sdk-go"
+	"github.com/G-core/gcore-cli/internal/core"
 )
 
 const (
@@ -22,19 +23,29 @@ const (
 var client *sdk.ClientWithResponses
 
 // top-level FastEdge command
-func Commands(baseUrl string, authFunc func(ctx context.Context, req *http.Request) error) (*cobra.Command, error) {
-	var local bool
+func Commands() *cobra.Command {
 	var cmdFastedge = &cobra.Command{
-		Use:   "fastedge <subcommand>",
-		Short: "Gcore Edge compute solution",
-		Long:  ``,
-		Args:  cobra.MinimumNArgs(1),
+		Use:     "fastedge <subcommand>",
+		Short:   "Gcore Edge compute solution",
+		Long:    ``,
+		GroupID: "fastedge",
+		Args:    cobra.MinimumNArgs(1),
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			var err error
-			url := baseUrl
-			if !local {
+			var (
+				err error
+				ctx = cmd.Context()
+			)
+			profile, err := core.GetClientProfile(ctx)
+			if err != nil {
+				return err
+			}
+			url := *profile.ApiUrl
+			authFunc := core.ExtractAuthFunc(ctx)
+
+			if !profile.IsLocal() {
 				url += "/fastedge"
 			}
+
 			client, err = sdk.NewClientWithResponses(
 				url,
 				sdk.WithRequestEditorFn(authFunc),
@@ -52,11 +63,9 @@ func Commands(baseUrl string, authFunc func(ctx context.Context, req *http.Reque
 			return nil
 		},
 	}
-	cmdFastedge.PersistentFlags().BoolVar(&local, "local", false, "local testing")
-	cmdFastedge.PersistentFlags().MarkHidden("local")
 
 	cmdFastedge.AddCommand(app(), binary(), stat(), logs())
-	return cmdFastedge, nil
+	return cmdFastedge
 }
 
 func newPointer[T any](val T) *T {

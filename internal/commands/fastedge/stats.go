@@ -1,7 +1,6 @@
 package fastedge
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"slices"
@@ -21,7 +20,8 @@ func stat() *cobra.Command {
 		Short: "Statistics",
 		Args:  cobra.MinimumNArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			rsp, err := client.GetClientMeWithResponse(context.Background())
+			ctx := cmd.Context()
+			rsp, err := client.GetClientMeWithResponse(ctx)
 			if err != nil {
 				return fmt.Errorf("getting the statistics: %w", err)
 			}
@@ -68,8 +68,9 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var appId *int64
+			ctx := cmd.Context()
 			if len(args) > 0 {
-				id, err := getAppIdByName(args[0])
+				id, err := getAppIdByName(ctx, args[0])
 				if err != nil {
 					return fmt.Errorf("cannot find app by name: %w", err)
 				}
@@ -92,7 +93,7 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 			}
 
 			rsp, err := client.StatsCallsWithResponse(
-				context.Background(),
+				ctx,
 				&sdk.StatsCallsParams{
 					Id:   appId,
 					From: from,
@@ -184,8 +185,9 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var appId *int64
+			ctx := cmd.Context()
 			if len(args) > 0 {
-				id, err := getAppIdByName(args[0])
+				id, err := getAppIdByName(ctx, args[0])
 				if err != nil {
 					return fmt.Errorf("cannot find app by name: %w", err)
 				}
@@ -208,7 +210,7 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 			}
 
 			rsp, err := client.StatsDurationWithResponse(
-				context.Background(),
+				ctx,
 				&sdk.StatsDurationParams{
 					Id:   appId,
 					From: from,

@@ -4,6 +4,8 @@ package human
 
 import (
 	"strings"
+
+	"github.com/iancoleman/strcase"
 )
 
 // MarshalOpt is hydrated by core.View
@@ -39,7 +41,7 @@ func (s *MarshalFieldOpt) getLabel() string {
 
 	label := s.FieldName
 	label = strings.ReplaceAll(label, ".", " ")
-	//label = strcase.ToBashArg(label)
+	label = strcase.ToKebab(label)
 	label = strings.ReplaceAll(label, "-", " ")
 	label = strings.ToUpper(label)
 	return label

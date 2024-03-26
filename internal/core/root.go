@@ -69,6 +69,16 @@ func Execute() {
 			}
 		}
 
+		if !strings.Contains(*apiKey, "$") {
+			return &errors.CliError{
+				Message: "Malformed API key",
+				Hint: "If you specified API key using '-a' option and GCORE_APIKEY env variable,\n" +
+					"please make sure that you are using single quotes to prevent shell\n" +
+					"parameter expansion",
+				Code: 1,
+			}
+		}
+
 		return nil
 	}
 
@@ -79,6 +89,7 @@ func Execute() {
 	}
 
 	rootCmd.AddCommand(fastedgeCmd)
+	cobra.EnableTraverseRunHooks = true // make sure all parentPersistentPreRun executed
 	err = rootCmd.Execute()
 	if err != nil {
 		cliErr, ok := err.(*errors.CliError)

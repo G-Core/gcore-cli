@@ -10,6 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	sdk "github.com/G-Core/FastEdge-client-sdk-go"
 	"github.com/G-core/gcore-cli/internal/output"
 )
 
@@ -31,7 +32,7 @@ func binary() *cobra.Command {
 		Short:   "Show list of client's binaries",
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			rsp, err := client.ListBinariesWithResponse(context.Background())
+			rsp, err := client.ListBinariesWithResponse(context.Background(), &sdk.ListBinariesParams{})
 			if err != nil {
 				return fmt.Errorf("getting the list of binaries: %w", err)
 			}
@@ -44,14 +45,14 @@ func binary() *cobra.Command {
 				return nil
 			}
 
-			if len(*rsp.JSON200) == 0 {
+			if len(rsp.JSON200.Binaries) == 0 {
 				fmt.Printf("you have no binaries\n")
 				return nil
 			}
 
-			table := make([][]string, len(*rsp.JSON200)+1)
+			table := make([][]string, len(rsp.JSON200.Binaries)+1)
 			table[0] = []string{"ID", "Status", "Unreferenced since"}
-			for i, bin := range *rsp.JSON200 {
+			for i, bin := range rsp.JSON200.Binaries {
 				table[i+1] = []string{
 					strconv.FormatInt(bin.Id, 10),
 					binStatusToString(bin.Status),

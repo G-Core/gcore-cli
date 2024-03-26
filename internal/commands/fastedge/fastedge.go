@@ -4,11 +4,18 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"runtime/debug"
+	"strings"
 
 	"github.com/golang-module/carbon/v2"
 	"github.com/spf13/cobra"
 
 	sdk "github.com/G-Core/FastEdge-client-sdk-go"
+)
+
+const (
+	versionHeaderName = "Fastedge-Api-Version"
+	SDKpackage        = "github.com/G-Core/FastEdge-client-sdk-go"
 )
 
 var client *sdk.ClientWithResponses
@@ -30,6 +37,7 @@ func Commands(baseUrl string, authFunc func(ctx context.Context, req *http.Reque
 			client, err = sdk.NewClientWithResponses(
 				url,
 				sdk.WithRequestEditorFn(authFunc),
+				sdk.WithRequestEditorFn(addSDKversionHeader),
 			)
 			if err != nil {
 				return fmt.Errorf("cannot init SDK: %w", err)
@@ -46,10 +54,24 @@ func Commands(baseUrl string, authFunc func(ctx context.Context, req *http.Reque
 	cmdFastedge.PersistentFlags().BoolVar(&local, "local", false, "local testing")
 	cmdFastedge.PersistentFlags().MarkHidden("local")
 
-	cmdFastedge.AddCommand(app(), binary(), plan(), stat(), logs())
+	cmdFastedge.AddCommand(app(), binary(), stat(), logs(), test())
 	return cmdFastedge, nil
 }
 
 func newPointer[T any](val T) *T {
 	return &val
+}
+
+func addSDKversionHeader(ctx context.Context, req *http.Request) error {
+	bi, ok := debug.ReadBuildInfo()
+	if ok {
+		for _, dep := range bi.Deps {
+			if dep.Path == SDKpackage {
+				ver := strings.SplitN( /*dep.Version*/ "v0.1.0-92347298", "-", 2) // drop revision info
+				req.Header.Set(versionHeaderName, ver[0])
+				return nil
+			}
+		}
+	}
+	return nil
 }

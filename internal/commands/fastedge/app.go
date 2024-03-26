@@ -163,14 +163,14 @@ uploading binary using "--file <filename>". To load file from stdin, use "-" as 
 				return nil
 			}
 
-			if len(*rsp.JSON200) == 0 {
+			if len(rsp.JSON200.Apps) == 0 {
 				fmt.Printf("you have no apps\n")
 				return nil
 			}
 
-			table := make([][]string, len(*rsp.JSON200)+1)
+			table := make([][]string, len(rsp.JSON200.Apps)+1)
 			table[0] = []string{"ID", "Status", "Name", "Url"}
-			for i, app := range *rsp.JSON200 {
+			for i, app := range rsp.JSON200.Apps {
 				table[i+1] = []string{
 					strconv.FormatInt(app.Id, 10),
 					appStatusToString(app.Status),
@@ -187,8 +187,8 @@ uploading binary using "--file <filename>". To load file from stdin, use "-" as 
 		Use:     "show <app_name>",
 		Aliases: []string{"get"},
 		Short:   "Show app details",
-		Long: `Show app properties. This command doesn't show app call statisrics.
-To see statistics, use "fastedge stat app_calls" and "fastedge stat app_duration"
+		Long: `Show app properties. This command doesn't show app call statistics.
+To see statistics, use "fastedge stats app_calls" and "fastedge stats app_duration"
 commands.`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

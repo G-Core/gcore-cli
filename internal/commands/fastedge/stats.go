@@ -108,7 +108,7 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 				return nil
 			}
 
-			if len(*rsp.JSON200) == 0 {
+			if len(rsp.JSON200.Stats) == 0 {
 				fmt.Println("No data to report")
 				return nil
 			}
@@ -116,10 +116,9 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 			// we don't know which statuses we see, so collect the info about statuses
 			// and make sparse matrix for counts by status
 			statusCols := make(map[int]int)
-			counts := make([][]int, len(*rsp.JSON200))
-			for i := range *rsp.JSON200 {
+			counts := make([][]int, len(rsp.JSON200.Stats))
+			for i, slot := range rsp.JSON200.Stats {
 				line := make([]int, len(statusCols))
-				slot := (*rsp.JSON200)[i]
 				for _, count := range slot.CountByStatus {
 					col, ok := statusCols[count.Status]
 					if ok {
@@ -148,11 +147,11 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 			}
 
 			// convert matrix to output table, observing correct column index
-			table := make([][]string, len(*rsp.JSON200)+1)
+			table := make([][]string, len(rsp.JSON200.Stats)+1)
 			table[0] = titles
-			for i := range *rsp.JSON200 {
+			for i := range rsp.JSON200.Stats {
 				line := make([]string, len(statusCols)+1)
-				line[0] = (*rsp.JSON200)[i].Time.Format("2006-01-02T15:04:05")
+				line[0] = rsp.JSON200.Stats[i].Time.Format("2006-01-02T15:04:05")
 				for j, count := range counts[i] {
 					line[index[j]+1] = strconv.Itoa(count)
 				}
@@ -221,14 +220,14 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 				return nil
 			}
 
-			if len(*rsp.JSON200) == 0 {
+			if len(rsp.JSON200.Stats) == 0 {
 				fmt.Println("No data to report")
 				return nil
 			}
 
-			table := make([][]string, len(*rsp.JSON200)+1)
+			table := make([][]string, len(rsp.JSON200.Stats)+1)
 			table[0] = []string{"Period start (UTC)", "Min", "Avg", "Median", "75%", "90%", "Max"}
-			for i, d := range *rsp.JSON200 {
+			for i, d := range rsp.JSON200.Stats {
 				table[i+1] = []string{
 					d.Time.Format("2006-01-02T15:04:05"),
 					scaleToMsec(d.Min),

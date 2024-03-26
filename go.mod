@@ -2,7 +2,6 @@ module github.com/G-core/gcore-cli
 
 go 1.21.5
 
-
 require (
 	github.com/G-Core/FastEdge-client-sdk-go v0.0.0-20240304075046-db0c8c3d17e7
 	github.com/alecthomas/assert v1.0.0
@@ -18,6 +17,7 @@ require (
 )
 
 require (
+	github.com/AlekSi/pointer v1.2.0 // indirect
 	github.com/alecthomas/colour v0.1.0 // indirect
 	github.com/alecthomas/repr v0.0.0-20210801044451-80ca428c5142 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
@@ -27,6 +27,7 @@ require (
 	github.com/go-openapi/swag v0.22.9 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/invopop/yaml v0.2.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect

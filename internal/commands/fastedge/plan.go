@@ -1,7 +1,6 @@
 package fastedge
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -28,7 +27,8 @@ may result in excessive timeouts and out-of-memory errors.`,
 		Short:   "Show list of available plans",
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			rsp, err := client.ListPlansWithResponse(context.Background())
+			ctx := cmd.Context()
+			rsp, err := client.ListPlansWithResponse(ctx)
 			if err != nil {
 				return fmt.Errorf("getting the list of plans: %w", err)
 			}
@@ -61,8 +61,9 @@ may result in excessive timeouts and out-of-memory errors.`,
 		Short:   "Show plan details",
 		Args:    cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := cmd.Context()
 			rsp, err := client.GetPlanWithResponse(
-				context.Background(),
+				ctx,
 				args[0],
 			)
 			if err != nil {

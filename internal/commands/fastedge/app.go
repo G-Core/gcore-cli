@@ -345,7 +345,7 @@ func appPropertiesFlags(cmd *cobra.Command) {
 	cmd.Flags().String("file", "", "Wasm binary filename ('-' means stdin)")
 	cmd.Flags().String("plan", "", "Plan name")
 	cmd.Flags().Bool("disabled", false, "Set status to 'disabled'")
-	cmd.Flags().StringSlice("env", nil, "Environment, in name=value format")
+	cmd.Flags().StringArray("env", nil, "Environment, in name=value format")
 	cmd.Flags().StringSlice("rsp_headers", nil, "Response headers to add, in name=value format")
 }
 
@@ -386,13 +386,13 @@ func parseAppProperties(cmd *cobra.Command) (sdk.App, error) {
 		app.Status = newPointer(1)
 	}
 
-	env, err := getMapParamP(cmd, "env")
+	env, err := getMapParamP("env", cmd.Flags().GetStringArray)
 	if err != nil {
 		return app, err
 	}
 	app.Env = &env
 
-	rspHeaders, err := getMapParamP(cmd, "rsp_headers")
+	rspHeaders, err := getMapParamP("rsp_headers", cmd.Flags().GetStringSlice)
 	if err != nil {
 		return app, err
 	}
@@ -401,9 +401,9 @@ func parseAppProperties(cmd *cobra.Command) (sdk.App, error) {
 	return app, nil
 }
 
-func getMapParamP(cmd *cobra.Command, name string) (map[string]string, error) {
+func getMapParamP(name string, f func(name string) ([]string, error)) (map[string]string, error) {
 	ret := make(map[string]string)
-	slice, err := cmd.Flags().GetStringSlice(name)
+	slice, err := f(name)
 	if err != nil || slice == nil || len(slice) == 0 {
 		return ret, err
 	}

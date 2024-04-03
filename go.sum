@@ -1,7 +1,5 @@
-github.com/G-Core/FastEdge-client-sdk-go v0.0.0-20240214130448-d87df1e38764 h1:7CATrk7BJpU1t4wr2avczZaX1KrwsjhArBKBaiSQN2M=
-github.com/G-Core/FastEdge-client-sdk-go v0.0.0-20240214130448-d87df1e38764/go.mod h1:ggyUVhy8/OCMBY4nbm7n9qDoPioROCk4vHhDJq9w7qE=
-github.com/G-Core/FastEdge-client-sdk-go v0.0.0-20240304075046-db0c8c3d17e7 h1:99yyAfaF6OV2ghz75yE72LwdzxP6gUYa3hL7XkObb5s=
-github.com/G-Core/FastEdge-client-sdk-go v0.0.0-20240304075046-db0c8c3d17e7/go.mod h1:ggyUVhy8/OCMBY4nbm7n9qDoPioROCk4vHhDJq9w7qE=
+github.com/G-Core/FastEdge-client-sdk-go v0.1.0 h1:vjkOiencavIb8eztdqCXFrvCvLFM6eJD04/mbU/PTYo=
+github.com/G-Core/FastEdge-client-sdk-go v0.1.0/go.mod h1:ggyUVhy8/OCMBY4nbm7n9qDoPioROCk4vHhDJq9w7qE=
 github.com/RaveNoX/go-jsoncommentstrip v1.0.0/go.mod h1:78ihd09MekBnJnxpICcwzCMzGrKSKYe4AqU6PDYYpjk=
 github.com/alecthomas/assert v1.0.0 h1:3XmGh/PSuLzDbK3W2gUbRXwgW5lqPkuqvRgeQ30FI5o=
 github.com/alecthomas/assert v1.0.0/go.mod h1:va/d2JC+M7F6s+80kl/R3G7FUiW6JzUO+hPhLyJ36ZY=
@@ -17,8 +15,6 @@ github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/docker/go-units v0.5.0 h1:69rxXcBk27SvSaaxTtLh/8llcHD8vYHT7WSdRZ/jvr4=
-github.com/docker/go-units v0.5.0/go.mod h1:fgPhTUdO+D/Jk86RDLlptpiXQzgHJF7gydDDbaIK4Dk=
 github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=
 github.com/dustin/go-humanize v1.0.1/go.mod h1:Mu1zIs6XwVuF/gI1OepvI0qD18qycQx+mFykh5fBlto=
 github.com/fatih/color v1.16.0 h1:zmkK9Ngbjj+K0yRhTVONQh1p/HknKYSlNT+vZCzyokM=

@@ -2,11 +2,9 @@ module github.com/G-core/gcore-cli
 
 go 1.21.5
 
-
 require (
-	github.com/G-Core/FastEdge-client-sdk-go v0.0.0-20240304075046-db0c8c3d17e7
+	github.com/G-Core/FastEdge-client-sdk-go v0.1.0
 	github.com/alecthomas/assert v1.0.0
-	github.com/docker/go-units v0.5.0
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.16.0
 	github.com/golang-module/carbon/v2 v2.3.10
@@ -52,5 +50,3 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace github.com/G-Core/FastEdge-client-sdk-go => ../FastEdge-client-sdk-go

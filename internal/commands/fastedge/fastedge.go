@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	versionHeaderName = "Fastedge-Api-Version"
+	versionHeaderName = "Fastedge-Sdk-Version"
 	SDKpackage        = "github.com/G-Core/FastEdge-client-sdk-go"
 )
 

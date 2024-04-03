@@ -67,7 +67,7 @@ func addSDKversionHeader(ctx context.Context, req *http.Request) error {
 	if ok {
 		for _, dep := range bi.Deps {
 			if dep.Path == SDKpackage {
-				ver := strings.SplitN( /*dep.Version*/ "v0.1.0-92347298", "-", 2) // drop revision info
+				ver := strings.SplitN(dep.Version, "-", 2) // drop revision info
 				req.Header.Set(versionHeaderName, ver[0])
 				return nil
 			}

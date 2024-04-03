@@ -51,11 +51,12 @@ func binary() *cobra.Command {
 			}
 
 			table := make([][]string, len(rsp.JSON200.Binaries)+1)
-			table[0] = []string{"ID", "Status", "Unreferenced since"}
+			table[0] = []string{"ID", "Status", "Name", "Unreferenced since"}
 			for i, bin := range rsp.JSON200.Binaries {
 				table[i+1] = []string{
 					strconv.FormatInt(bin.Id, 10),
 					binStatusToString(bin.Status),
+					unrefString(bin.Name),
 					unrefString(bin.UnrefSince),
 				}
 			}
@@ -119,6 +120,12 @@ If this flag is omitted, file contant is read from stdin.`,
 				binStatusToString(rsp.JSON200.Status),
 				srcLangToString(rsp.JSON200.Type),
 			)
+			if rsp.JSON200.Name != nil && *rsp.JSON200.Name != "" {
+				fmt.Printf("Name:\t\t%s\n", *rsp.JSON200.Name)
+			}
+			if rsp.JSON200.Descr != nil && *rsp.JSON200.Descr != "" {
+				fmt.Printf("Description:\t%s\n", *rsp.JSON200.Descr)
+			}
 			if rsp.JSON200.UnrefSince != nil {
 				fmt.Printf("Unref since:\t%s\n", *rsp.JSON200.UnrefSince)
 			}

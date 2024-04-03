@@ -38,9 +38,6 @@ uploading binary using "--file <filename>". To load file from stdin, use "-" as 
 			if err != nil {
 				return err
 			}
-			if app.Plan == nil {
-				return errors.New("plan must be specified")
-			}
 			if app.Binary == nil {
 				file, err := cmd.Flags().GetString("file")
 				if err != nil {
@@ -343,7 +340,6 @@ func appPropertiesFlags(cmd *cobra.Command) {
 	cmd.Flags().String("name", "", "App name")
 	cmd.Flags().Int64("binary", 0, "Wasm binary id")
 	cmd.Flags().String("file", "", "Wasm binary filename ('-' means stdin)")
-	cmd.Flags().String("plan", "", "Plan name")
 	cmd.Flags().Bool("disabled", false, "Set status to 'disabled'")
 	cmd.Flags().StringArray("env", nil, "Environment, in name=value format")
 	cmd.Flags().StringSlice("rsp_headers", nil, "Response headers to add, in name=value format")
@@ -358,14 +354,6 @@ func parseAppProperties(cmd *cobra.Command) (sdk.App, error) {
 	}
 	if name != "" {
 		app.Name = &name
-	}
-
-	plan, err := cmd.Flags().GetString("plan")
-	if err != nil {
-		return app, err
-	}
-	if plan != "" {
-		app.Plan = &plan
 	}
 
 	binID, err := cmd.Flags().GetInt64("binary")

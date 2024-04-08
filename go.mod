@@ -2,9 +2,8 @@ module github.com/G-core/gcore-cli
 
 go 1.21.5
 
-
 require (
-	github.com/G-Core/FastEdge-client-sdk-go v0.0.0-20240304075046-db0c8c3d17e7
+	github.com/G-Core/FastEdge-client-sdk-go v0.1.0
 	github.com/alecthomas/assert v1.0.0
 	github.com/docker/go-units v0.5.0
 	github.com/dustin/go-humanize v1.0.1

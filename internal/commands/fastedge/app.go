@@ -447,7 +447,7 @@ func outputMap(m *map[string]string, title string) {
 }
 
 func getAppIdByName(appName string) (int64, error) {
-	idRsp, err := client.GetAppIdByNameWithResponse(context.Background(), appName)
+	idRsp, err := client.ListAppsWithResponse(context.Background(), &sdk.ListAppsParams{Name: &appName})
 	if err != nil {
 		return 0, fmt.Errorf("api response: %w", err)
 	}
@@ -457,5 +457,25 @@ func getAppIdByName(appName string) (int64, error) {
 	if idRsp.JSON200 == nil {
 		return 0, fmt.Errorf("app '%s' not found", appName)
 	}
-	return *idRsp.JSON200, nil
+	if len(idRsp.JSON200.Apps) != 1 {
+		return 0, fmt.Errorf("app '%s' not found", appName)
+	}
+	return idRsp.JSON200.Apps[0].Id, nil
+}
+
+func getAppByName(appName string) (sdk.AppShort, error) {
+	idRsp, err := client.ListAppsWithResponse(context.Background(), &sdk.ListAppsParams{Name: &appName})
+	if err != nil {
+		return sdk.AppShort{}, fmt.Errorf("api response: %w", err)
+	}
+	if idRsp.StatusCode() != http.StatusOK {
+		return sdk.AppShort{}, fmt.Errorf("%s", string(idRsp.Body))
+	}
+	if idRsp.JSON200 == nil {
+		return sdk.AppShort{}, fmt.Errorf("app '%s' not found", appName)
+	}
+	if len(idRsp.JSON200.Apps) != 1 {
+		return sdk.AppShort{}, fmt.Errorf("app '%s' not found", appName)
+	}
+	return idRsp.JSON200.Apps[0], nil
 }

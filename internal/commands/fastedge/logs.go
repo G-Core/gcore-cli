@@ -126,8 +126,8 @@ This command allows you filtering by edge name, client ip and time range.`,
 
 			if rsp.JSON200.Logs != nil {
 				printLogs(rsp.JSON200.Logs)
-				for *rsp.JSON200.CurrentPage < *rsp.JSON200.TotalPages {
-					fmt.Printf("Displaying %d/%d logs, load next page? (Y/n) ", *rsp.JSON200.CurrentPage**rsp.JSON200.PageSize, *rsp.JSON200.TotalPages**rsp.JSON200.PageSize)
+				for *rsp.JSON200.Offset < *rsp.JSON200.TotalCount {
+					fmt.Printf("Displaying %d/%d logs, load next page? (Y/n) ", *rsp.JSON200.Offset, *rsp.JSON200.TotalCount)
 					text, _ := reader.ReadString('\n')
 					text = strings.ToLower(strings.TrimSpace(text))
 
@@ -139,19 +139,23 @@ This command allows you filtering by edge name, client ip and time range.`,
 					fmt.Print("\033[2K\033[1A\033[2K\033[1A\n")
 
 					// Increment the page number
-					page := int64(*rsp.JSON200.CurrentPage + 1)
+					var (
+						offset = int32(*rsp.JSON200.Offset + 25)
+						limit  = int32(25)
+					)
 
 					// Call the API again with the new page number
 					rsp, err = client.GetV1AppsIdLogsWithResponse(
 						context.Background(),
 						id,
 						&sdk.GetV1AppsIdLogsParams{
-							From:        &from,
-							To:          &to,
-							Edge:        edge,
-							Sort:        sort,
-							ClientIp:    clientIp,
-							CurrentPage: &page,
+							From:     &from,
+							To:       &to,
+							Edge:     edge,
+							Sort:     sort,
+							ClientIp: clientIp,
+							Offset:   &offset,
+							Limit:    &limit,
 						},
 					)
 					if err != nil {

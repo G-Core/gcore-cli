@@ -37,7 +37,7 @@ func binary() *cobra.Command {
 				return fmt.Errorf("getting the list of binaries: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("getting the list of binaries: %s", string(rsp.Body))
+				return fmt.Errorf("getting the list of binaries: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -107,7 +107,7 @@ If this flag is omitted, file contant is read from stdin.`,
 				return fmt.Errorf("getting the list of plans: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("getting the list of plans: %s", string(rsp.Body))
+				return fmt.Errorf("getting the list of plans: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -118,7 +118,7 @@ If this flag is omitted, file contant is read from stdin.`,
 			fmt.Printf(
 				"Status:\t\t%s\nSource lang:\t%s\n",
 				binStatusToString(rsp.JSON200.Status),
-				srcLangToString(rsp.JSON200.Type),
+				srcLangToString(rsp.JSON200.Source),
 			)
 			if rsp.JSON200.Name != nil && *rsp.JSON200.Name != "" {
 				fmt.Printf("Name:\t\t%s\n", *rsp.JSON200.Name)
@@ -154,7 +154,7 @@ If this flag is omitted, file contant is read from stdin.`,
 				return fmt.Errorf("getting the list of plans: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("getting the list of plans: %s", string(rsp.Body))
+				return fmt.Errorf("getting the list of plans: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -192,10 +192,10 @@ func uploadBinary(src string) (int64, error) {
 		return 0, fmt.Errorf("cannot upload the binary: %w", err)
 	}
 	if rsp.StatusCode() != http.StatusOK {
-		return 0, fmt.Errorf("cannot upload the binary: %s", string(rsp.Body))
+		return 0, fmt.Errorf("cannot upload the binary: %s", extractErrorMessage(rsp.Body))
 	}
 
-	return *rsp.JSON200, nil
+	return rsp.JSON200.Id, nil
 }
 
 func binStatusToString(s int) string {

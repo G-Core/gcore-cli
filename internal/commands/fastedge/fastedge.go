@@ -2,6 +2,7 @@ package fastedge
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"runtime/debug"
@@ -74,4 +75,16 @@ func addSDKversionHeader(ctx context.Context, req *http.Request) error {
 		}
 	}
 	return nil
+}
+
+type errResponse struct {
+	Error string `json:"error"`
+}
+
+func extractErrorMessage(rspBuf []byte) string {
+	var rsp errResponse
+	if err := json.Unmarshal(rspBuf, &rsp); err == nil {
+		return rsp.Error
+	}
+	return string(rspBuf)
 }

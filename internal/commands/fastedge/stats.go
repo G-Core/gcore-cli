@@ -26,7 +26,7 @@ func stat() *cobra.Command {
 				return fmt.Errorf("getting the statistics: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("getting the statistics: %s", string(rsp.Body))
+				return fmt.Errorf("getting the statistics: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -56,7 +56,7 @@ func stat() *cobra.Command {
 	}
 
 	var cmdCalls = &cobra.Command{
-		Use:     "calls <app_name>",
+		Use:     "calls [<app_name>]",
 		Aliases: []string{"calls"},
 		Short:   "Show app calls statistic",
 		Long: `Show number of app calls, grouped by time slots and HTTP statuses.
@@ -65,11 +65,15 @@ but you can change reporting interval using "--from" and "--to" flags
 (specifying date/time in format "YYYY-MM-DD HH:mm:SS", where either date or time,
 can be omitted, or as UNIX timestamp) and reporting step duration with flag
 "--step" (in seconds).`,
-		Args: cobra.ExactArgs(1),
+		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := getAppIdByName(args[0])
-			if err != nil {
-				return fmt.Errorf("cannot find app by name: %w", err)
+			var appId *int64
+			if len(args) > 0 {
+				id, err := getAppIdByName(args[0])
+				if err != nil {
+					return fmt.Errorf("cannot find app by name: %w", err)
+				}
+				appId = &id
 			}
 
 			from, err := parseTimeFlag(cmd, "from")
@@ -87,10 +91,10 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 				return fmt.Errorf("cannot parse reporting step: %w", err)
 			}
 
-			rsp, err := client.AppCallsWithResponse(
+			rsp, err := client.StatsCallsWithResponse(
 				context.Background(),
-				id,
-				&sdk.AppCallsParams{
+				&sdk.StatsCallsParams{
+					Id:   appId,
 					From: from,
 					To:   to,
 					Step: step,
@@ -100,7 +104,7 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 				return fmt.Errorf("cannot get statistics: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("cannot get statistics: %s", string(rsp.Body))
+				return fmt.Errorf("cannot get statistics: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -168,7 +172,7 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 	statFlags(cmdCalls)
 
 	var cmdDuration = &cobra.Command{
-		Use:     "duration <app_name>",
+		Use:     "duration [<app_name>]",
 		Aliases: []string{"duration", "time", "timing"},
 		Short:   "Show app execution duration",
 		Long: `Show duration of app calls, grouped by time slots. All times are in msec
@@ -177,11 +181,15 @@ but you can change reporting interval using "--from" and "--to" flags
 (specifying date/time in format "YYYY-MM-DD HH:mm:SS", where either date or time,
 can be omitted, or as UNIX timestamp) and reporting step duration with flag
 "--step" (in seconds).`,
-		Args: cobra.ExactArgs(1),
+		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := getAppIdByName(args[0])
-			if err != nil {
-				return fmt.Errorf("cannot find app by name: %w", err)
+			var appId *int64
+			if len(args) > 0 {
+				id, err := getAppIdByName(args[0])
+				if err != nil {
+					return fmt.Errorf("cannot find app by name: %w", err)
+				}
+				appId = &id
 			}
 
 			from, err := parseTimeFlag(cmd, "from")
@@ -199,10 +207,10 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 				return fmt.Errorf("cannot parse reporting step: %w", err)
 			}
 
-			rsp, err := client.AppDurationWithResponse(
+			rsp, err := client.StatsDurationWithResponse(
 				context.Background(),
-				id,
-				&sdk.AppDurationParams{
+				&sdk.StatsDurationParams{
+					Id:   appId,
 					From: from,
 					To:   to,
 					Step: step,
@@ -212,7 +220,7 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 				return fmt.Errorf("cannot get statistics: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("cannot get statistics: %s", string(rsp.Body))
+				return fmt.Errorf("cannot get statistics: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {

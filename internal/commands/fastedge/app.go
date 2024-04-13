@@ -58,7 +58,7 @@ uploading binary using "--file <filename>". To load file from stdin, use "-" as 
 				return fmt.Errorf("adding the app: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("adding the app: %s", string(rsp.Body))
+				return fmt.Errorf("adding the app: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -121,7 +121,7 @@ uploading binary using "--file <filename>". To load file from stdin, use "-" as 
 				return fmt.Errorf("updating the app: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("updating the app: %s", string(rsp.Body))
+				return fmt.Errorf("updating the app: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -147,12 +147,12 @@ uploading binary using "--file <filename>". To load file from stdin, use "-" as 
 		Short:   "Show list of client's apps",
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			rsp, err := client.ListAppsWithResponse(context.Background())
+			rsp, err := client.ListAppsWithResponse(context.Background(), &sdk.ListAppsParams{})
 			if err != nil {
 				return fmt.Errorf("getting the list of apps: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("getting the list of apps: %s", string(rsp.Body))
+				return fmt.Errorf("getting the list of apps: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -201,7 +201,7 @@ commands.`,
 				return fmt.Errorf("getting app detail: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("getting app details: %s", string(rsp.Body))
+				return fmt.Errorf("getting app details: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -244,7 +244,7 @@ commands.`,
 				return fmt.Errorf("enabling app: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("enabling app: %s", string(rsp.Body))
+				return fmt.Errorf("enabling app: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -275,7 +275,7 @@ commands.`,
 				return fmt.Errorf("disabling app: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("disabling app: %s", string(rsp.Body))
+				return fmt.Errorf("disabling app: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -311,7 +311,7 @@ so if you don't want this to happen, consider disabling the app to keep binary r
 				return fmt.Errorf("deleting app: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("deleting app: %s", string(rsp.Body))
+				return fmt.Errorf("deleting app: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {

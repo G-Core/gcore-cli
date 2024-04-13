@@ -29,7 +29,7 @@ func appLogsFilterFlags(cmd *cobra.Command) {
 func logs() *cobra.Command {
 	var (
 		from, to time.Time
-		sort     *sdk.GetV1AppsIdLogsParamsSort
+		sort     *sdk.ListLogsParamsSort
 		edge     *string
 		clientIp *string
 	)
@@ -72,7 +72,7 @@ This command allows you filtering by edge name, client ip and time range.`,
 			}
 
 			if sortFlag != "" {
-				logParamSort := sdk.GetV1AppsIdLogsParamsSort(sortFlag)
+				logParamSort := sdk.ListLogsParamsSort(sortFlag)
 				if logParamSort != sdk.Asc && logParamSort != sdk.Desc {
 					return errors.New("invalid value for `sort` expected asc or desc")
 				}
@@ -94,10 +94,10 @@ This command allows you filtering by edge name, client ip and time range.`,
 				return fmt.Errorf("cannot find app by name: %w", err)
 			}
 
-			rsp, err := client.GetV1AppsIdLogsWithResponse(
+			rsp, err := client.ListLogsWithResponse(
 				context.Background(),
 				id,
-				&sdk.GetV1AppsIdLogsParams{
+				&sdk.ListLogsParams{
 					From:     &from,
 					To:       &to,
 					Edge:     edge,
@@ -109,7 +109,7 @@ This command allows you filtering by edge name, client ip and time range.`,
 				return fmt.Errorf("getting app logs: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("getting app logs: %s", string(rsp.Body))
+				return fmt.Errorf("getting app logs: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -145,10 +145,10 @@ This command allows you filtering by edge name, client ip and time range.`,
 					)
 
 					// Call the API again with the new page number
-					rsp, err = client.GetV1AppsIdLogsWithResponse(
+					rsp, err = client.ListLogsWithResponse(
 						context.Background(),
 						id,
-						&sdk.GetV1AppsIdLogsParams{
+						&sdk.ListLogsParams{
 							From:     &from,
 							To:       &to,
 							Edge:     edge,
@@ -191,7 +191,7 @@ This command allows you filtering by edge name, client ip and time range.`,
 				return fmt.Errorf("enabling logging: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("enabling logging: %s", string(rsp.Body))
+				return fmt.Errorf("enabling logging: %s", extractErrorMessage(rsp.Body))
 			}
 
 			rsp1, err := client.GetAppWithResponse(
@@ -202,7 +202,7 @@ This command allows you filtering by edge name, client ip and time range.`,
 				return fmt.Errorf("getting app detail: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("getting app details: %s", string(rsp.Body))
+				return fmt.Errorf("getting app details: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if rsp1.JSON200.DebugUntil == nil {
@@ -232,7 +232,7 @@ This command allows you filtering by edge name, client ip and time range.`,
 				return fmt.Errorf("disabling logging: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("disabling logging: %s", string(rsp.Body))
+				return fmt.Errorf("disabling logging: %s", extractErrorMessage(rsp.Body))
 			}
 
 			fmt.Printf("Logging for app %d disabled\n", id)

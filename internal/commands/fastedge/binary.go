@@ -10,6 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	sdk "github.com/G-Core/FastEdge-client-sdk-go"
 	"github.com/G-core/gcore-cli/internal/output"
 )
 
@@ -31,12 +32,12 @@ func binary() *cobra.Command {
 		Short:   "Show list of client's binaries",
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			rsp, err := client.ListBinariesWithResponse(context.Background())
+			rsp, err := client.ListBinariesWithResponse(context.Background(), &sdk.ListBinariesParams{})
 			if err != nil {
 				return fmt.Errorf("getting the list of binaries: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("getting the list of binaries: %s", string(rsp.Body))
+				return fmt.Errorf("getting the list of binaries: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -44,17 +45,18 @@ func binary() *cobra.Command {
 				return nil
 			}
 
-			if len(*rsp.JSON200) == 0 {
+			if len(rsp.JSON200.Binaries) == 0 {
 				fmt.Printf("you have no binaries\n")
 				return nil
 			}
 
-			table := make([][]string, len(*rsp.JSON200)+1)
-			table[0] = []string{"ID", "Status", "Unreferenced since"}
-			for i, bin := range *rsp.JSON200 {
+			table := make([][]string, len(rsp.JSON200.Binaries)+1)
+			table[0] = []string{"ID", "Status", "Name", "Unreferenced since"}
+			for i, bin := range rsp.JSON200.Binaries {
 				table[i+1] = []string{
 					strconv.FormatInt(bin.Id, 10),
 					binStatusToString(bin.Status),
+					unrefString(bin.Name),
 					unrefString(bin.UnrefSince),
 				}
 			}
@@ -105,7 +107,7 @@ If this flag is omitted, file contant is read from stdin.`,
 				return fmt.Errorf("getting the list of plans: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("getting the list of plans: %s", string(rsp.Body))
+				return fmt.Errorf("getting the list of plans: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -116,8 +118,14 @@ If this flag is omitted, file contant is read from stdin.`,
 			fmt.Printf(
 				"Status:\t\t%s\nSource lang:\t%s\n",
 				binStatusToString(rsp.JSON200.Status),
-				srcLangToString(rsp.JSON200.Type),
+				srcLangToString(rsp.JSON200.Source),
 			)
+			if rsp.JSON200.Name != nil && *rsp.JSON200.Name != "" {
+				fmt.Printf("Name:\t\t%s\n", *rsp.JSON200.Name)
+			}
+			if rsp.JSON200.Descr != nil && *rsp.JSON200.Descr != "" {
+				fmt.Printf("Description:\t%s\n", *rsp.JSON200.Descr)
+			}
 			if rsp.JSON200.UnrefSince != nil {
 				fmt.Printf("Unref since:\t%s\n", *rsp.JSON200.UnrefSince)
 			}
@@ -146,7 +154,7 @@ If this flag is omitted, file contant is read from stdin.`,
 				return fmt.Errorf("getting the list of plans: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("getting the list of plans: %s", string(rsp.Body))
+				return fmt.Errorf("getting the list of plans: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -184,10 +192,10 @@ func uploadBinary(src string) (int64, error) {
 		return 0, fmt.Errorf("cannot upload the binary: %w", err)
 	}
 	if rsp.StatusCode() != http.StatusOK {
-		return 0, fmt.Errorf("cannot upload the binary: %s", string(rsp.Body))
+		return 0, fmt.Errorf("cannot upload the binary: %s", extractErrorMessage(rsp.Body))
 	}
 
-	return *rsp.JSON200, nil
+	return rsp.JSON200.Id, nil
 }
 
 func binStatusToString(s int) string {

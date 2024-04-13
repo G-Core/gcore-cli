@@ -38,9 +38,6 @@ uploading binary using "--file <filename>". To load file from stdin, use "-" as 
 			if err != nil {
 				return err
 			}
-			if app.Plan == nil {
-				return errors.New("plan must be specified")
-			}
 			if app.Binary == nil {
 				file, err := cmd.Flags().GetString("file")
 				if err != nil {
@@ -61,7 +58,7 @@ uploading binary using "--file <filename>". To load file from stdin, use "-" as 
 				return fmt.Errorf("adding the app: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("adding the app: %s", string(rsp.Body))
+				return fmt.Errorf("adding the app: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -124,7 +121,7 @@ uploading binary using "--file <filename>". To load file from stdin, use "-" as 
 				return fmt.Errorf("updating the app: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("updating the app: %s", string(rsp.Body))
+				return fmt.Errorf("updating the app: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -150,12 +147,12 @@ uploading binary using "--file <filename>". To load file from stdin, use "-" as 
 		Short:   "Show list of client's apps",
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			rsp, err := client.ListAppsWithResponse(context.Background())
+			rsp, err := client.ListAppsWithResponse(context.Background(), &sdk.ListAppsParams{})
 			if err != nil {
 				return fmt.Errorf("getting the list of apps: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("getting the list of apps: %s", string(rsp.Body))
+				return fmt.Errorf("getting the list of apps: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -163,14 +160,14 @@ uploading binary using "--file <filename>". To load file from stdin, use "-" as 
 				return nil
 			}
 
-			if len(*rsp.JSON200) == 0 {
+			if len(rsp.JSON200.Apps) == 0 {
 				fmt.Printf("you have no apps\n")
 				return nil
 			}
 
-			table := make([][]string, len(*rsp.JSON200)+1)
+			table := make([][]string, len(rsp.JSON200.Apps)+1)
 			table[0] = []string{"ID", "Status", "Name", "Url"}
-			for i, app := range *rsp.JSON200 {
+			for i, app := range rsp.JSON200.Apps {
 				table[i+1] = []string{
 					strconv.FormatInt(app.Id, 10),
 					appStatusToString(app.Status),
@@ -187,8 +184,8 @@ uploading binary using "--file <filename>". To load file from stdin, use "-" as 
 		Use:     "show <app_name>",
 		Aliases: []string{"get"},
 		Short:   "Show app details",
-		Long: `Show app properties. This command doesn't show app call statisrics.
-To see statistics, use "fastedge stat app_calls" and "fastedge stat app_duration"
+		Long: `Show app properties. This command doesn't show app call statistics.
+To see statistics, use "fastedge stats app_calls" and "fastedge stats app_duration"
 commands.`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -204,7 +201,7 @@ commands.`,
 				return fmt.Errorf("getting app detail: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("getting app details: %s", string(rsp.Body))
+				return fmt.Errorf("getting app details: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -247,7 +244,7 @@ commands.`,
 				return fmt.Errorf("enabling app: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("enabling app: %s", string(rsp.Body))
+				return fmt.Errorf("enabling app: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -278,7 +275,7 @@ commands.`,
 				return fmt.Errorf("disabling app: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("disabling app: %s", string(rsp.Body))
+				return fmt.Errorf("disabling app: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -314,7 +311,7 @@ so if you don't want this to happen, consider disabling the app to keep binary r
 				return fmt.Errorf("deleting app: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("deleting app: %s", string(rsp.Body))
+				return fmt.Errorf("deleting app: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -343,7 +340,6 @@ func appPropertiesFlags(cmd *cobra.Command) {
 	cmd.Flags().String("name", "", "App name")
 	cmd.Flags().Int64("binary", 0, "Wasm binary id")
 	cmd.Flags().String("file", "", "Wasm binary filename ('-' means stdin)")
-	cmd.Flags().String("plan", "", "Plan name")
 	cmd.Flags().Bool("disabled", false, "Set status to 'disabled'")
 	cmd.Flags().StringArray("env", nil, "Environment, in name=value format")
 	cmd.Flags().StringSlice("rsp_headers", nil, "Response headers to add, in name=value format")
@@ -358,14 +354,6 @@ func parseAppProperties(cmd *cobra.Command) (sdk.App, error) {
 	}
 	if name != "" {
 		app.Name = &name
-	}
-
-	plan, err := cmd.Flags().GetString("plan")
-	if err != nil {
-		return app, err
-	}
-	if plan != "" {
-		app.Plan = &plan
 	}
 
 	binID, err := cmd.Flags().GetInt64("binary")
@@ -447,7 +435,7 @@ func outputMap(m *map[string]string, title string) {
 }
 
 func getAppIdByName(appName string) (int64, error) {
-	idRsp, err := client.GetAppIdByNameWithResponse(context.Background(), appName)
+	idRsp, err := client.ListAppsWithResponse(context.Background(), &sdk.ListAppsParams{Name: &appName})
 	if err != nil {
 		return 0, fmt.Errorf("api response: %w", err)
 	}
@@ -457,5 +445,25 @@ func getAppIdByName(appName string) (int64, error) {
 	if idRsp.JSON200 == nil {
 		return 0, fmt.Errorf("app '%s' not found", appName)
 	}
-	return *idRsp.JSON200, nil
+	if len(idRsp.JSON200.Apps) != 1 {
+		return 0, fmt.Errorf("app '%s' not found", appName)
+	}
+	return idRsp.JSON200.Apps[0].Id, nil
+}
+
+func getAppByName(appName string) (sdk.AppShort, error) {
+	idRsp, err := client.ListAppsWithResponse(context.Background(), &sdk.ListAppsParams{Name: &appName})
+	if err != nil {
+		return sdk.AppShort{}, fmt.Errorf("api response: %w", err)
+	}
+	if idRsp.StatusCode() != http.StatusOK {
+		return sdk.AppShort{}, fmt.Errorf("%s", string(idRsp.Body))
+	}
+	if idRsp.JSON200 == nil {
+		return sdk.AppShort{}, fmt.Errorf("app '%s' not found", appName)
+	}
+	if len(idRsp.JSON200.Apps) != 1 {
+		return sdk.AppShort{}, fmt.Errorf("app '%s' not found", appName)
+	}
+	return idRsp.JSON200.Apps[0], nil
 }

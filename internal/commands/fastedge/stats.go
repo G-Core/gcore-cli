@@ -26,7 +26,7 @@ func stat() *cobra.Command {
 				return fmt.Errorf("getting the statistics: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("getting the statistics: %s", string(rsp.Body))
+				return fmt.Errorf("getting the statistics: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -56,7 +56,7 @@ func stat() *cobra.Command {
 	}
 
 	var cmdCalls = &cobra.Command{
-		Use:     "calls <app_name>",
+		Use:     "calls [<app_name>]",
 		Aliases: []string{"calls"},
 		Short:   "Show app calls statistic",
 		Long: `Show number of app calls, grouped by time slots and HTTP statuses.
@@ -65,11 +65,15 @@ but you can change reporting interval using "--from" and "--to" flags
 (specifying date/time in format "YYYY-MM-DD HH:mm:SS", where either date or time,
 can be omitted, or as UNIX timestamp) and reporting step duration with flag
 "--step" (in seconds).`,
-		Args: cobra.ExactArgs(1),
+		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := getAppIdByName(args[0])
-			if err != nil {
-				return fmt.Errorf("cannot find app by name: %w", err)
+			var appId *int64
+			if len(args) > 0 {
+				id, err := getAppIdByName(args[0])
+				if err != nil {
+					return fmt.Errorf("cannot find app by name: %w", err)
+				}
+				appId = &id
 			}
 
 			from, err := parseTimeFlag(cmd, "from")
@@ -87,10 +91,10 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 				return fmt.Errorf("cannot parse reporting step: %w", err)
 			}
 
-			rsp, err := client.AppCallsWithResponse(
+			rsp, err := client.StatsCallsWithResponse(
 				context.Background(),
-				id,
-				&sdk.AppCallsParams{
+				&sdk.StatsCallsParams{
+					Id:   appId,
 					From: from,
 					To:   to,
 					Step: step,
@@ -100,7 +104,7 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 				return fmt.Errorf("cannot get statistics: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("cannot get statistics: %s", string(rsp.Body))
+				return fmt.Errorf("cannot get statistics: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -108,7 +112,7 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 				return nil
 			}
 
-			if len(*rsp.JSON200) == 0 {
+			if len(rsp.JSON200.Stats) == 0 {
 				fmt.Println("No data to report")
 				return nil
 			}
@@ -116,10 +120,9 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 			// we don't know which statuses we see, so collect the info about statuses
 			// and make sparse matrix for counts by status
 			statusCols := make(map[int]int)
-			counts := make([][]int, len(*rsp.JSON200))
-			for i := range *rsp.JSON200 {
+			counts := make([][]int, len(rsp.JSON200.Stats))
+			for i, slot := range rsp.JSON200.Stats {
 				line := make([]int, len(statusCols))
-				slot := (*rsp.JSON200)[i]
 				for _, count := range slot.CountByStatus {
 					col, ok := statusCols[count.Status]
 					if ok {
@@ -148,11 +151,11 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 			}
 
 			// convert matrix to output table, observing correct column index
-			table := make([][]string, len(*rsp.JSON200)+1)
+			table := make([][]string, len(rsp.JSON200.Stats)+1)
 			table[0] = titles
-			for i := range *rsp.JSON200 {
+			for i := range rsp.JSON200.Stats {
 				line := make([]string, len(statusCols)+1)
-				line[0] = (*rsp.JSON200)[i].Time.Format("2006-01-02T15:04:05")
+				line[0] = rsp.JSON200.Stats[i].Time.Format("2006-01-02T15:04:05")
 				for j, count := range counts[i] {
 					line[index[j]+1] = strconv.Itoa(count)
 				}
@@ -169,7 +172,7 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 	statFlags(cmdCalls)
 
 	var cmdDuration = &cobra.Command{
-		Use:     "duration <app_name>",
+		Use:     "duration [<app_name>]",
 		Aliases: []string{"duration", "time", "timing"},
 		Short:   "Show app execution duration",
 		Long: `Show duration of app calls, grouped by time slots. All times are in msec
@@ -178,11 +181,15 @@ but you can change reporting interval using "--from" and "--to" flags
 (specifying date/time in format "YYYY-MM-DD HH:mm:SS", where either date or time,
 can be omitted, or as UNIX timestamp) and reporting step duration with flag
 "--step" (in seconds).`,
-		Args: cobra.ExactArgs(1),
+		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := getAppIdByName(args[0])
-			if err != nil {
-				return fmt.Errorf("cannot find app by name: %w", err)
+			var appId *int64
+			if len(args) > 0 {
+				id, err := getAppIdByName(args[0])
+				if err != nil {
+					return fmt.Errorf("cannot find app by name: %w", err)
+				}
+				appId = &id
 			}
 
 			from, err := parseTimeFlag(cmd, "from")
@@ -200,10 +207,10 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 				return fmt.Errorf("cannot parse reporting step: %w", err)
 			}
 
-			rsp, err := client.AppDurationWithResponse(
+			rsp, err := client.StatsDurationWithResponse(
 				context.Background(),
-				id,
-				&sdk.AppDurationParams{
+				&sdk.StatsDurationParams{
+					Id:   appId,
 					From: from,
 					To:   to,
 					Step: step,
@@ -213,7 +220,7 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 				return fmt.Errorf("cannot get statistics: %w", err)
 			}
 			if rsp.StatusCode() != http.StatusOK {
-				return fmt.Errorf("cannot get statistics: %s", string(rsp.Body))
+				return fmt.Errorf("cannot get statistics: %s", extractErrorMessage(rsp.Body))
 			}
 
 			if output.Format(cmd) == output.FmtJSON {
@@ -221,14 +228,14 @@ can be omitted, or as UNIX timestamp) and reporting step duration with flag
 				return nil
 			}
 
-			if len(*rsp.JSON200) == 0 {
+			if len(rsp.JSON200.Stats) == 0 {
 				fmt.Println("No data to report")
 				return nil
 			}
 
-			table := make([][]string, len(*rsp.JSON200)+1)
+			table := make([][]string, len(rsp.JSON200.Stats)+1)
 			table[0] = []string{"Period start (UTC)", "Min", "Avg", "Median", "75%", "90%", "Max"}
-			for i, d := range *rsp.JSON200 {
+			for i, d := range rsp.JSON200.Stats {
 				table[i+1] = []string{
 					d.Time.Format("2006-01-02T15:04:05"),
 					scaleToMsec(d.Min),

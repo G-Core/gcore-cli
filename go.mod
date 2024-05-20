@@ -6,7 +6,7 @@ require (
 	github.com/G-Core/FastEdge-client-sdk-go v0.2.0
 	github.com/alecthomas/assert v1.0.0
 	github.com/dustin/go-humanize v1.0.1
-	github.com/fatih/color v1.16.0
+	github.com/fatih/color v1.17.0
 	github.com/golang-module/carbon/v2 v2.3.10
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5

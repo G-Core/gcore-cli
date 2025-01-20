@@ -71,7 +71,7 @@ uploading binary using "--file <filename>". To load file from stdin, use "-" as 
 				rsp.JSON200.Id,
 				rsp.JSON200.Name,
 				appStatusToString(rsp.JSON200.Status),
-				rsp.JSON200.Url,
+				unrefString(rsp.JSON200.Url),
 			)
 			return nil
 		},
@@ -134,7 +134,7 @@ uploading binary using "--file <filename>". To load file from stdin, use "-" as 
 				rsp.JSON200.Id,
 				rsp.JSON200.Name,
 				appStatusToString(rsp.JSON200.Status),
-				rsp.JSON200.Url,
+				unrefString(rsp.JSON200.Url),
 			)
 			return nil
 		},
@@ -172,7 +172,7 @@ uploading binary using "--file <filename>". To load file from stdin, use "-" as 
 					strconv.FormatInt(app.Id, 10),
 					appStatusToString(app.Status),
 					app.Name,
-					app.Url,
+					unrefString(app.Url),
 				}
 			}
 			output.Table(table, output.Format(cmd))

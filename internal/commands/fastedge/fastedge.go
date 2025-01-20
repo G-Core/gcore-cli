@@ -8,7 +8,7 @@ import (
 	"runtime/debug"
 	"strings"
 
-	"github.com/golang-module/carbon/v2"
+	"github.com/dromara/carbon/v2"
 	"github.com/spf13/cobra"
 
 	sdk "github.com/G-Core/FastEdge-client-sdk-go"

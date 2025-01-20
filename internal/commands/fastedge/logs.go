@@ -73,7 +73,7 @@ This command allows you filtering by edge name, client ip and time range.`,
 
 			if sortFlag != "" {
 				logParamSort := sdk.ListLogsParamsSort(sortFlag)
-				if logParamSort != sdk.Asc && logParamSort != sdk.Desc {
+				if logParamSort != sdk.ListLogsParamsSortAsc && logParamSort != sdk.ListLogsParamsSortDesc {
 					return errors.New("invalid value for `sort` expected asc or desc")
 				}
 				sort = &logParamSort

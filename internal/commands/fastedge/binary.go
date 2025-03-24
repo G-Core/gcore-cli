@@ -121,9 +121,6 @@ If this flag is omitted, file contant is read from stdin.`,
 			if rsp.JSON200.UnrefSince != nil {
 				fmt.Printf("Unref since:\t%s\n", *rsp.JSON200.UnrefSince)
 			}
-			if rsp.JSON200.Status == 2 {
-				fmt.Printf("Errors:\t%s\n", *rsp.JSON200.Errors)
-			}
 
 			return nil
 		},

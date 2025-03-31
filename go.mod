@@ -2,12 +2,12 @@ module github.com/G-core/gcore-cli
 
 go 1.23.0
 
-toolchain go1.23.6
+toolchain go1.24.1
 
 require (
 	github.com/G-Core/FastEdge-client-sdk-go v0.3.5
 	github.com/alecthomas/assert v1.0.0
-	github.com/dromara/carbon/v2 v2.5.4
+	github.com/dromara/carbon/v2 v2.6.1
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.18.0
 	github.com/spf13/cobra v1.9.1

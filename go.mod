@@ -2,7 +2,7 @@ module github.com/G-core/gcore-cli
 
 go 1.23.0
 
-toolchain go1.23.6
+toolchain go1.24.1
 
 require (
 	github.com/G-Core/FastEdge-client-sdk-go v0.3.5
@@ -12,7 +12,7 @@ require (
 	github.com/fatih/color v1.18.0
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.6
-	github.com/spf13/viper v1.20.0
+	github.com/spf13/viper v1.20.1
 	golang.org/x/term v0.30.0
 	golang.org/x/text v0.23.0
 )

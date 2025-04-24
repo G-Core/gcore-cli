@@ -61,3 +61,5 @@ brews:
       name: homebrew-tap
       # see https://goreleaser.com/errors/resource-not-accessible-by-integration
       token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+      pull_request:
+        enabled: true

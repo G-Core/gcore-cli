@@ -28,10 +28,11 @@ func Commands(baseUrl string, authFunc func(ctx context.Context, req *http.Reque
 			if !local {
 				url += "/fastedge"
 			}
-			client, err = sdk.NewClientWithResponses(
+			client, err = sdk.NewClientWithVersionCheck(
 				url,
+				"gcore-cli",
+				"Gcore CLI tool",
 				sdk.WithRequestEditorFn(authFunc),
-				sdk.WithRequestEditorFn(sdk.AddVersionHeader),
 			)
 			if err != nil {
 				return fmt.Errorf("cannot init SDK: %w", err)

@@ -1,3 +1,5 @@
+version: 2
+
 before:
   hooks:
     - go mod download
@@ -19,14 +21,14 @@ builds:
       - linux_arm64
 
 archives:
-  - format: binary
+  - formats: [ 'binary' ]
     name_template: "{{ .Binary }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}"
 
 checksum:
   name_template: 'checksums.txt'
 
 snapshot:
-  name_template: "{{ incpatch .Version }}-snapshot"
+  version_template: "{{ incpatch .Version }}-snapshot"
 
 changelog:
   sort: asc
@@ -38,6 +40,7 @@ release:
   github:
     owner: g-core
     name: gcore-cli
+  replace_existing_artifacts: true
 
 brews:
   - name: gcore-cli
@@ -45,7 +48,7 @@ brews:
       name: goreleaserbot
       email: goreleaserbot@gcore.com
     commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
-    folder: Formula
+    directory: Formula
     homepage: "https://github.com/G-Core/gcore-cli"
     description: "The official Gcore CLI"
     license: "Apache-2.0"

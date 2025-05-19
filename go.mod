@@ -7,7 +7,7 @@ toolchain go1.23.8
 require (
 	github.com/G-Core/FastEdge-client-sdk-go v0.3.6
 	github.com/alecthomas/assert v1.0.0
-	github.com/dromara/carbon/v2 v2.6.3
+	github.com/dromara/carbon/v2 v2.6.6
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.18.0
 	github.com/spf13/cobra v1.9.1

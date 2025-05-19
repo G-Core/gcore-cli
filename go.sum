@@ -14,8 +14,8 @@ github.com/cpuguy83/go-md2man/v2 v2.0.6/go.mod h1:oOW0eioCTA6cOiMLiUPZOpcVxMig6N
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/dromara/carbon/v2 v2.6.3 h1:suYXDpa4/xNUtg0cqMu3rp6sQW8ZAmX+F9qi9k+vogw=
-github.com/dromara/carbon/v2 v2.6.3/go.mod h1:Baj3A1uBBctJmpZWJd6/+WWnmIuY2pobR6IOpB6xigc=
+github.com/dromara/carbon/v2 v2.6.6 h1:WWtCv23+5faQEtS6A4/Ci10YGefNDLo/WU4ciKBV5FY=
+github.com/dromara/carbon/v2 v2.6.6/go.mod h1:7GXqCUplwN1s1b4whGk2zX4+g4CMCoDIZzmjlyt0vLY=
 github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=
 github.com/dustin/go-humanize v1.0.1/go.mod h1:Mu1zIs6XwVuF/gI1OepvI0qD18qycQx+mFykh5fBlto=
 github.com/fatih/color v1.18.0 h1:S8gINlzdQ840/4pfAwic/ZE0djQEH3wM94VfqLTZcOM=

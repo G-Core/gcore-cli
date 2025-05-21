@@ -59,6 +59,7 @@ brews:
     repository:
       owner: G-Core
       name: homebrew-tap
+      branch: "{{ .ProjectName }}-{{ .Tag }}"
       # see https://goreleaser.com/errors/resource-not-accessible-by-integration
       token: "{{ .Env.TAP_GITHUB_TOKEN }}"
       pull_request:

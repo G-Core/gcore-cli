@@ -14,7 +14,7 @@ require (
 	github.com/spf13/pflag v1.0.6
 	github.com/spf13/viper v1.20.1
 	golang.org/x/term v0.34.0
-	golang.org/x/text v0.25.0
+  golang.org/x/text v0.28.0
 )
 
 require (

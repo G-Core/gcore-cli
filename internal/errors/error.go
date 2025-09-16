@@ -2,7 +2,7 @@ package errors
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"strings"
 
 	"github.com/G-core/gcore-cli/internal/human"
@@ -43,7 +43,7 @@ func (s *CliError) MarshalHuman() (string, error) {
 	if s.Err != nil {
 		humanError := s.Err
 		if s.Message != "" {
-			humanError = fmt.Errorf(s.Message)
+			humanError = errors.New(s.Message)
 		}
 		str, err := human.Marshal(humanError, nil)
 		if err != nil {

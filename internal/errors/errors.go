@@ -3,7 +3,6 @@ package errors
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 )
 
 var ErrAborted = errors.New("operation aborted")
@@ -19,7 +18,7 @@ func ParseCloudErr(body []byte) *CliError {
 	}
 
 	return &CliError{
-		Err:  fmt.Errorf("%s", s.Message),
+		Err:  errors.New(s.Message),
 		Code: 1,
 	}
 }

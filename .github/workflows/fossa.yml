@@ -2,10 +2,10 @@ name: FOSSA
 
 on:
   push:
+    branches: [ 'main' ]
   pull_request:
-  workflow_dispatch:
-  merge_group:
-    types: [checks_requested]
+    # The branches below must be a subset of the branches above
+    branches: [ 'main' ]
 
 jobs:
   fossa:

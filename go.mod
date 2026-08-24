@@ -1,6 +1,6 @@
 module github.com/G-core/gcore-cli
 
-go 1.25
+go 1.25.0
 
 require (
 	github.com/G-Core/FastEdge-client-sdk-go v0.3.6
@@ -12,7 +12,7 @@ require (
 	github.com/spf13/pflag v1.0.10
 	github.com/spf13/viper v1.21.0
 	golang.org/x/term v0.35.0
-	golang.org/x/text v0.29.0
+	golang.org/x/text v0.41.0
 )
 
 require (
